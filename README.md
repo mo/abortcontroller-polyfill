@@ -1,9 +1,9 @@
 # AbortController "polyfill"
 
-Minimal stubs so that the AbortController API for terminating ```fetch()``` requests can be used in
-browsers that doesn't yet implement it. This "polyfill" doesn't actually close the connection when
-the request is aborted, but it calls ```.catch()``` with ```err.name == 'AbortError'``` instead of
-```.then()```.
+Minimal stubs so that the AbortController DOM API for terminating ```fetch()``` requests can be used
+in browsers that doesn't yet implement it. This "polyfill" doesn't actually close the connection
+when the request is aborted, but it calls ```.catch()``` with ```err.name == 'AbortError'``` instead
+of ```.then()```.
 
 ```js
 const controller = new AbortController();
