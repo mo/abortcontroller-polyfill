@@ -26,7 +26,7 @@
     }
     return realFetch(input, init).then(r => {
       if (isAborted) {
-        throw { name: 'AbortError' };
+        throw new DOMException('Aborted', 'AbortError');
       }
       return r;
     });
