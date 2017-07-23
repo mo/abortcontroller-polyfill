@@ -6,15 +6,15 @@ the request is aborted, but it calls ```.catch()``` with ```err.name == 'AbortEr
 ```.then()```.
 
 ```js
-  const controller = new AbortController();
-  const signal = controller.signal;
-  fetch('/some/url', {signal}).then(res => res.json()).then(data => {
-    // do something with "data"
-  }).catch(err => {
-    if (err.name == 'AbortError') {
-      return;
-    }
-  });
+const controller = new AbortController();
+const signal = controller.signal;
+fetch('/some/url', {signal}).then(res => res.json()).then(data => {
+  // do something with "data"
+}).catch(err => {
+  if (err.name == 'AbortError') {
+    return;
+  }
+});
 ```
 
 You can read about the [AbortController](https://dom.spec.whatwg.org/#aborting-ongoing-activities) API in the DOM specification.
