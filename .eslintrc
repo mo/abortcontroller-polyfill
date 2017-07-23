@@ -1,0 +1,28 @@
+{
+    "env": {
+        "node": true,
+        "browser": true,
+        "es6": true
+    },
+    "globals": {
+      "AbortController": true
+    },
+    "extends": ["eslint:recommended"],
+    "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        }
+    },
+    "rules": {
+        "indent": [ "error", 2 ],
+        "linebreak-style": [ "error", "unix" ],
+        "quotes": [ "error", "single" ],
+        "semi": [ "error", "always" ],
+        "no-unused-vars": ["warn", { "vars": "all", "args": "none", "ignoreRestSiblings": true }],
+        "no-console": "off",
+        "no-debugger": "warn",
+        "comma-dangle": ["error", "only-multiline"]
+    }
+}
