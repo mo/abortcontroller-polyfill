@@ -5,23 +5,39 @@
     return;
   }
 
-  class AbortController {
+  class AbortSignal {
     constructor() {
-      this.signal = {};
+      this.aborted = false;
+      this.listeners = [];
     }
-    abort() {
-      if (this.signal.__internalOnCancel) {
-        this.signal.__internalOnCancel();
+    addEventListener(which, callback) {
+      if (which == 'abort') {
+        if (this.aborted) {
+          callback();
+        } else {
+          this.listeners.push(callback);
+        }
       }
     }
   }
+
+  class AbortController {
+    constructor() {
+      this.signal = new AbortSignal();
+    }
+    abort() {
+      this.signal.aborted = true;
+      this.signal.listeners.forEach(cb => cb());
+    }
+  }
+
   const realFetch = fetch;
   const abortableFetch = (input, init) => {
     let isAborted = false;
     if (init && init.signal) {
-      init.signal.__internalOnCancel = () => {
+      init.signal.addEventListener('abort', () => {
         isAborted = true;
-      };
+      });
       delete init.signal;
     }
     return realFetch(input, init).then(r => {
