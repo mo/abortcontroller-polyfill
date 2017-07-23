@@ -26,7 +26,7 @@ $ npm install --save abortcontroller-polyfill
 ```
 
 If you're using webpack or similar, import it early in your client entrypoint .js file using
-```require('abortcontroller-polyfill')``` or ```import 'abortcontroller-polyfill'```.
+```import 'abortcontroller-polyfill'``` or ```require('abortcontroller-polyfill')```.
 
 
 # See also
