@@ -1,6 +1,10 @@
 (function(self) {
   'use strict';
 
+  if (self.AbortController) {
+    return;
+  }
+
   class AbortController {
     constructor() {
       this.signal = {};
