@@ -64,8 +64,24 @@ describe('basic tests', () => {
     expect(getJSErrors().length).toBe(0);
   });
 
-});
+  it('fetch without signal set', () => {
+    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    var res = browser.executeAsync(async (done) => {
+      setTimeout(() => {
+        done({name: 'fail'});
+      }, 2000);
+      try {
+        await fetch('http://httpstat.us/200?sleep=50');
+        done('PASS');
+      } catch (err) {
+        done(err);
+      }
+    });
+    expect(res.value).toBe('PASS');
+    expect(getJSErrors().length).toBe(0);
+  });
 
+});
 
 function getJSErrors() {
   if (browser.desiredCapabilities.browserName === 'firefox') {
