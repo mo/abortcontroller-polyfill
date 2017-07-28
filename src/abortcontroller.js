@@ -5,19 +5,21 @@
     return;
   }
 
-  class AbortSignal {
+  class Emitter {
     constructor() {
-      this.aborted = false;
-      this.listeners = [];
+      const delegate = document.createDocumentFragment();
+      const methods = ['addEventListener', 'dispatchEvent', 'removeEventListener'];
+      methods.forEach(method =>
+        this[method] = (...args) => delegate[method](...args)
+      );
     }
-    addEventListener(which, callback) {
-      if (which == 'abort') {
-        if (this.aborted) {
-          callback();
-        } else {
-          this.listeners.push(callback);
-        }
-      }
+  }
+
+  class AbortSignal extends Emitter {
+    constructor() {
+      super();
+
+      this.aborted = false;
     }
   }
 
@@ -27,25 +29,33 @@
     }
     abort() {
       this.signal.aborted = true;
-      this.signal.listeners.forEach(cb => cb());
+      this.signal.dispatchEvent(new Event('abort'));
     }
   }
 
   const realFetch = fetch;
   const abortableFetch = (input, init) => {
-    let isAborted = false;
     if (init && init.signal) {
-      init.signal.addEventListener('abort', () => {
-        isAborted = true;
-      });
-      delete init.signal;
-    }
-    return realFetch(input, init).then(r => {
-      if (isAborted) {
-        throw new DOMException('Aborted', 'AbortError');
+      const casting = () => new DOMException('Aborted', 'AbortError');
+
+      // Return early if already aborted, doz avoiding making a request
+      if (init.signal.aborted) {
+        return Promise.reject(casting());
       }
-      return r;
-    });
+
+      // Turn a event into a promise, reject it once `abort` is dispatched
+      const cancable = new Promise((_, reject) => {
+        // Do we have to remove the listener if request finish, to free memory?
+        init.signal.addEventListener('abort', () => reject(casting()), {once: true});
+      });
+
+      delete init.signal;
+
+      // Return the fastest promise (don't need to wait for request to finish)
+      return Promise.race([cancable, realFetch(input, init)]);
+    }
+
+    return realFetch(input, init);
   };
 
   self.fetch = abortableFetch;
