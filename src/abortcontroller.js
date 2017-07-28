@@ -36,23 +36,22 @@
   const realFetch = fetch;
   const abortableFetch = (input, init) => {
     if (init && init.signal) {
-      const casting = () => new DOMException('Aborted', 'AbortError');
+      const abortError = new DOMException('Aborted', 'AbortError');
 
-      // Return early if already aborted, doz avoiding making a request
+      // Return early if already aborted, thus avoiding making an HTTP request
       if (init.signal.aborted) {
-        return Promise.reject(casting());
+        return Promise.reject(abortError);
       }
 
-      // Turn a event into a promise, reject it once `abort` is dispatched
-      const cancable = new Promise((_, reject) => {
-        // Do we have to remove the listener if request finish, to free memory?
-        init.signal.addEventListener('abort', () => reject(casting()), {once: true});
+      // Turn an event into a promise, reject it once `abort` is dispatched
+      const cancellation = new Promise((_, reject) => {
+        init.signal.addEventListener('abort', () => reject(abortError), {once: true});
       });
 
       delete init.signal;
 
       // Return the fastest promise (don't need to wait for request to finish)
-      return Promise.race([cancable, realFetch(input, init)]);
+      return Promise.race([cancellation, realFetch(input, init)]);
     }
 
     return realFetch(input, init);
