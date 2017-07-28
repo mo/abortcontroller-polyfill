@@ -6,7 +6,7 @@ describe('basic tests', () => {
 
   it('abort during fetch', () => {
     browser.url('file://' + path.join(__dirname, 'testpage.html'));
-    var res = browser.executeAsync(async (done) => {
+    const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
       }, 2000);
@@ -28,7 +28,7 @@ describe('basic tests', () => {
 
   it('abort before fetch started', () => {
     browser.url('file://' + path.join(__dirname, 'testpage.html'));
-    var res = browser.executeAsync(async (done) => {
+    const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
       }, 2000);
@@ -74,7 +74,7 @@ describe('basic tests', () => {
 
   it('fetch without aborting', () => {
     browser.url('file://' + path.join(__dirname, 'testpage.html'));
-    var res = browser.executeAsync(async (done) => {
+    const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
       }, 2000);
@@ -93,7 +93,7 @@ describe('basic tests', () => {
 
   it('fetch without signal set', () => {
     browser.url('file://' + path.join(__dirname, 'testpage.html'));
-    var res = browser.executeAsync(async (done) => {
+    const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
       }, 2000);
