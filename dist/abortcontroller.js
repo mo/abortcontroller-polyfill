@@ -2,6 +2,10 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 (function (self) {
@@ -11,29 +15,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     return;
   }
 
-  var AbortSignal = function () {
+  var Emitter = function Emitter() {
+    var _this = this;
+
+    _classCallCheck(this, Emitter);
+
+    var delegate = document.createDocumentFragment();
+    var methods = ['addEventListener', 'dispatchEvent', 'removeEventListener'];
+    methods.forEach(function (method) {
+      return _this[method] = function () {
+        return delegate[method].apply(delegate, arguments);
+      };
+    });
+  };
+
+  var AbortSignal = function (_Emitter) {
+    _inherits(AbortSignal, _Emitter);
+
     function AbortSignal() {
       _classCallCheck(this, AbortSignal);
 
-      this.aborted = false;
-      this.listeners = [];
+      var _this2 = _possibleConstructorReturn(this, (AbortSignal.__proto__ || Object.getPrototypeOf(AbortSignal)).call(this));
+
+      _this2.aborted = false;
+      return _this2;
     }
 
-    _createClass(AbortSignal, [{
-      key: 'addEventListener',
-      value: function addEventListener(which, callback) {
-        if (which == 'abort') {
-          if (this.aborted) {
-            callback();
-          } else {
-            this.listeners.push(callback);
-          }
-        }
-      }
-    }]);
-
     return AbortSignal;
-  }();
+  }(Emitter);
 
   var AbortController = function () {
     function AbortController() {
@@ -46,9 +55,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'abort',
       value: function abort() {
         this.signal.aborted = true;
-        this.signal.listeners.forEach(function (cb) {
-          return cb();
-        });
+        this.signal.dispatchEvent(new Event('abort'));
       }
     }]);
 
@@ -57,19 +64,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
   var realFetch = fetch;
   var abortableFetch = function abortableFetch(input, init) {
-    var isAborted = false;
     if (init && init.signal) {
-      init.signal.addEventListener('abort', function () {
-        isAborted = true;
-      });
-      delete init.signal;
-    }
-    return realFetch(input, init).then(function (r) {
-      if (isAborted) {
-        throw new DOMException('Aborted', 'AbortError');
+      var abortError = new DOMException('Aborted', 'AbortError');
+
+      // Return early if already aborted, thus avoiding making an HTTP request
+      if (init.signal.aborted) {
+        return Promise.reject(abortError);
       }
-      return r;
-    });
+
+      // Turn an event into a promise, reject it once `abort` is dispatched
+      var cancellation = new Promise(function (_, reject) {
+        init.signal.addEventListener('abort', function () {
+          return reject(abortError);
+        }, { once: true });
+      });
+
+      delete init.signal;
+
+      // Return the fastest promise (don't need to wait for request to finish)
+      return Promise.race([cancellation, realFetch(input, init)]);
+    }
+
+    return realFetch(input, init);
   };
 
   self.fetch = abortableFetch;
