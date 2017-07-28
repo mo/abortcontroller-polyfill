@@ -1,5 +1,6 @@
 const chalk = require('chalk');
 const path = require('path');
+const http = require('http');
 
 describe('basic tests', () => {
 
@@ -43,6 +44,32 @@ describe('basic tests', () => {
     const err = res.value;
     expect(err.name).toBe('AbortError');
     expect(getJSErrors().length).toBe(0);
+  });
+
+  it('abort before fetch started, verify no HTTP request is made', () => {
+    const server = http.createServer((req, res) => {
+      fail('fetch() made an HTTP request despite pre-aborted signal');
+    }).listen(0);
+    const boundListenPort = server.address().port;
+    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    const res = browser.executeAsync(async (boundListenPort, done) => {
+      setTimeout(() => {
+        done({name: 'fail'});
+      }, 2000);
+      const controller = new AbortController();
+      controller.abort();
+      const signal = controller.signal;
+      try {
+        await fetch(`http://127.0.0.1:${boundListenPort}`, {signal});
+        done({name: 'fail'});
+      } catch (err) {
+        done(err);
+      }
+    }, boundListenPort);
+    const err = res.value;
+    expect(err.name).toBe('AbortError');
+    expect(getJSErrors().length).toBe(0);
+    server.close();
   });
 
   it('fetch without aborting', () => {

@@ -5,6 +5,7 @@
     "expect": true,
     "browser": true,
     "$": true,
-    "$$": true
+    "$$": true,
+    "fail": true
   }
 }
