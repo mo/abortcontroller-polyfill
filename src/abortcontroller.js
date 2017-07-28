@@ -4,20 +4,22 @@
   if (self.AbortController) {
     return;
   }
-
-  class AbortSignal {
+  
+  class Emitter {
     constructor() {
-      this.aborted = false;
-      this.listeners = [];
+      var delegate = document.createDocumentFragment();
+      var methods = ['addEventListener', 'dispatchEvent', 'removeEventListener'];
+      methods.forEach(f =>
+        this[f] = (...xs) => delegate[f](...xs)
+      );
     }
-    addEventListener(which, callback) {
-      if (which == 'abort') {
-        if (this.aborted) {
-          callback();
-        } else {
-          this.listeners.push(callback);
-        }
-      }
+  }
+
+  class AbortSignal extends Emitter {
+    constructor() {
+      super();
+      
+      this.aborted = false;
     }
   }
 
@@ -27,7 +29,7 @@
     }
     abort() {
       this.signal.aborted = true;
-      this.signal.listeners.forEach(cb => cb());
+      this.signal.dispatchEvent(new Event('abort'));
     }
   }
 
