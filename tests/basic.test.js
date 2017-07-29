@@ -108,6 +108,40 @@ describe('basic tests', () => {
     expect(getJSErrors().length).toBe(0);
   });
 
+  it('event listener fires "abort" event', () => {
+    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    const res = browser.executeAsync(async (done) => {
+      setTimeout(() => {
+        done({name: 'fail'});
+      }, 2000);
+      const controller = new AbortController();
+      controller.signal.addEventListener('abort', () => {
+        done('PASS');
+      });
+      controller.abort();
+    });
+    expect(res.value).toBe('PASS');
+    expect(getJSErrors().length).toBe(0);
+  });
+
+  it('event listener doesn\'t fire "abort" event after removeEventListener', () => {
+    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    const res = browser.executeAsync(async (done) => {
+      setTimeout(() => {
+        done('PASS');
+      }, 200);
+      const controller = new AbortController();
+      const handlerFunc = () => {
+        done('FAIL');
+      };
+      controller.signal.addEventListener('abort', handlerFunc);
+      controller.signal.removeEventListener('abort', handlerFunc);
+      controller.abort();
+    });
+    expect(res.value).toBe('PASS');
+    expect(getJSErrors().length).toBe(0);
+  });
+
 });
 
 function getJSErrors() {
