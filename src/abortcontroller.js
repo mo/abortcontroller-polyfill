@@ -39,7 +39,7 @@
     }
   }
   
-  if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
+  if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
     AbortController.prototype[Symbol.toStringTag] = 'AbortController'
     AbortSignal.prototype[Symbol.toStringTag] = 'AbortSignal'
   }
