@@ -21,6 +21,9 @@
 
       this.aborted = false;
     }
+    toString() {
+      return '[object AbortSignal]';
+    }
   }
 
   class AbortController {
@@ -31,6 +34,14 @@
       this.signal.aborted = true;
       this.signal.dispatchEvent(new Event('abort'));
     }
+    toString() {
+      return '[object AbortController]';
+    }
+  }
+
+  if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+    AbortController.prototype[Symbol.toStringTag] = 'AbortController';
+    AbortSignal.prototype[Symbol.toStringTag] = 'AbortSignal';
   }
 
   const realFetch = fetch;
