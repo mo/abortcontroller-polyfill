@@ -40,6 +40,8 @@
   }
 
   if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+    // These are necessary to make sure that we get correct output for:
+    // Object.prototype.toString.call(new AbortController())
     AbortController.prototype[Symbol.toStringTag] = 'AbortController';
     AbortSignal.prototype[Symbol.toStringTag] = 'AbortSignal';
   }

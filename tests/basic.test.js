@@ -142,6 +142,36 @@ describe('basic tests', () => {
     expect(getJSErrors().length).toBe(0);
   });
 
+  it('toString() output', () => {
+    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+
+    let res;
+
+    res = browser.executeAsync((done) => {
+      done(new AbortController().toString());
+    });
+    expect(res.value).toBe('[object AbortController]');
+
+    res = browser.executeAsync((done) => {
+      done(Object.prototype.toString.call(new AbortController()));
+    });
+    expect(res.value).toBe('[object AbortController]');
+
+    res = browser.executeAsync((done) => {
+      done(new AbortController().signal.toString());
+    });
+    expect(res.value).toBe('[object AbortSignal]');
+
+    res = browser.executeAsync((done) => {
+      done(new AbortSignal().toString());
+    });
+    expect(res.value).toBe('[object AbortSignal]');
+
+    res = browser.executeAsync((done) => {
+      done(Object.prototype.toString.call(new AbortSignal()));
+    });
+    expect(res.value).toBe('[object AbortSignal]');
+  });
 });
 
 function getJSErrors() {
