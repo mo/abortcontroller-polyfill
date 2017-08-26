@@ -41,6 +41,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       return _this2;
     }
 
+    _createClass(AbortSignal, [{
+      key: 'toString',
+      value: function toString() {
+        return '[object AbortSignal]';
+      }
+    }]);
+
     return AbortSignal;
   }(Emitter);
 
@@ -57,10 +64,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         this.signal.aborted = true;
         this.signal.dispatchEvent(new Event('abort'));
       }
+    }, {
+      key: 'toString',
+      value: function toString() {
+        return '[object AbortController]';
+      }
     }]);
 
     return AbortController;
   }();
+
+  if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+    // These are necessary to make sure that we get correct output for:
+    // Object.prototype.toString.call(new AbortController())
+    AbortController.prototype[Symbol.toStringTag] = 'AbortController';
+    AbortSignal.prototype[Symbol.toStringTag] = 'AbortSignal';
+  }
 
   var realFetch = fetch;
   var abortableFetch = function abortableFetch(input, init) {
@@ -90,4 +109,5 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
   self.fetch = abortableFetch;
   self.AbortController = AbortController;
+  self.AbortSignal = AbortSignal;
 })(typeof self !== 'undefined' ? self : undefined);
