@@ -5,7 +5,8 @@
         "es6": true
     },
     "globals": {
-      "AbortController": true
+      "AbortController": true,
+      "AbortSignal": true
     },
     "extends": ["eslint:recommended"],
     "parserOptions": {

@@ -70,5 +70,6 @@
 
   self.fetch = abortableFetch;
   self.AbortController = AbortController;
+  self.AbortSignal = AbortSignal;
 
 })(typeof self !== 'undefined' ? self : this);
