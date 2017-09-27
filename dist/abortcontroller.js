@@ -84,7 +84,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   var realFetch = fetch;
   var abortableFetch = function abortableFetch(input, init) {
     if (init && init.signal) {
-      var abortError = new DOMException('Aborted', 'AbortError');
+      var abortError = void 0;
+      try {
+        abortError = new DOMException('Aborted', 'AbortError');
+      } catch (err) {
+        // IE 11 does not support calling the DOMException constructor, use a
+        // regular error object on it instead.
+        abortError = new Error('Aborted');
+        abortError.name = 'AbortError';
+      }
 
       // Return early if already aborted, thus avoiding making an HTTP request
       if (init.signal.aborted) {

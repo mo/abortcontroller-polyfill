@@ -49,7 +49,15 @@
   const realFetch = fetch;
   const abortableFetch = (input, init) => {
     if (init && init.signal) {
-      const abortError = new DOMException('Aborted', 'AbortError');
+      let abortError;
+      try {
+        abortError = new DOMException('Aborted', 'AbortError');
+      } catch (err) {
+        // IE 11 does not support calling the DOMException constructor, use a
+        // regular error object on it instead.
+        abortError = new Error('Aborted');
+        abortError.name = 'AbortError';
+      }
 
       // Return early if already aborted, thus avoiding making an HTTP request
       if (init.signal.aborted) {
