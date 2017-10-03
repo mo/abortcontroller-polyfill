@@ -124,6 +124,29 @@ describe('basic tests', () => {
     expect(getJSErrors().length).toBe(0);
   });
 
+  it('signal.aborted is true after abort', () => {
+    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    const res = browser.executeAsync(async (done) => {
+      setTimeout(() => {
+        done('FAIL');
+      }, 2000);
+      const controller = new AbortController();
+      controller.signal.addEventListener('abort', () => {
+        if (controller.signal.aborted === true) {
+          done('PASS');
+        } else {
+          done('FAIL');
+        }
+      });
+      controller.abort();
+      if (controller.signal.aborted !== true) {
+        done('FAIL');
+      }
+    });
+    expect(res.value).toBe('PASS');
+    expect(getJSErrors().length).toBe(0);
+  });
+
   it('event listener doesn\'t fire "abort" event after removeEventListener', () => {
     browser.url('file://' + path.join(__dirname, 'testpage.html'));
     const res = browser.executeAsync(async (done) => {
