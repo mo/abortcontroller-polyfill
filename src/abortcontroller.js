@@ -46,39 +46,6 @@
     AbortSignal.prototype[Symbol.toStringTag] = 'AbortSignal';
   }
 
-  const realFetch = fetch;
-  const abortableFetch = (input, init) => {
-    if (init && init.signal) {
-      let abortError;
-      try {
-        abortError = new DOMException('Aborted', 'AbortError');
-      } catch (err) {
-        // IE 11 does not support calling the DOMException constructor, use a
-        // regular error object on it instead.
-        abortError = new Error('Aborted');
-        abortError.name = 'AbortError';
-      }
-
-      // Return early if already aborted, thus avoiding making an HTTP request
-      if (init.signal.aborted) {
-        return Promise.reject(abortError);
-      }
-
-      // Turn an event into a promise, reject it once `abort` is dispatched
-      const cancellation = new Promise((_, reject) => {
-        init.signal.addEventListener('abort', () => reject(abortError), {once: true});
-      });
-
-      delete init.signal;
-
-      // Return the fastest promise (don't need to wait for request to finish)
-      return Promise.race([cancellation, realFetch(input, init)]);
-    }
-
-    return realFetch(input, init);
-  };
-
-  self.fetch = abortableFetch;
   self.AbortController = AbortController;
   self.AbortSignal = AbortSignal;
 
