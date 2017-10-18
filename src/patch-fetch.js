@@ -34,8 +34,6 @@
         init.signal.addEventListener('abort', () => reject(abortError), {once: true});
       });
 
-      delete init.signal;
-
       // Return the fastest promise (don't need to wait for request to finish)
       return Promise.race([cancellation, realFetch(input, init)]);
     }
