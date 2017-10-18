@@ -30,7 +30,7 @@ If you're using webpack or similar, import it early in your client entrypoint .j
 
 # Contributors
 * Martin Olsson
-* Jimmy Karl Roland Wärting
+* Jimmy Wärting
 * [silverwind](https://github.com/silverwind)
 
 # See also
