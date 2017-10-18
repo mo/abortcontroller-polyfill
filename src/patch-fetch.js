@@ -1,6 +1,8 @@
 
 (function(self) {
   'use strict';
+  
+  if (!self.Request) return
 
   // Do feature detecting
   const controller = new AbortController();
