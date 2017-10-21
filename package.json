@@ -2,9 +2,9 @@
   "name": "abortcontroller-polyfill",
   "version": "1.0.7",
   "description": "Browser polyfill for the AbortController DOM API (stub that calls catch, doesn't actually abort request).",
-  "main": "dist/abortcontroller.js",
+  "main": "dist/browser-polyfill.js",
   "scripts": {
-    "build": "mkdir -p dist ; babel src/abortcontroller.js -o dist/abortcontroller.js",
+    "build": "mkdir -p dist ; babel src/ --out-dir dist/ ; cat dist/abortcontroller.js dist/patch-fetch.js > dist/browser-polyfill.js",
     "test": "SELENIUM_BROWSER=chrome E2E_HEADLESS=1 ./scripts/wdio-suppress-exitcode",
     "test-chrome": "SELENIUM_BROWSER=chrome ./scripts/wdio-suppress-exitcode",
     "test-firefox": "SELENIUM_BROWSER=firefox ./scripts/wdio-suppress-exitcode",
