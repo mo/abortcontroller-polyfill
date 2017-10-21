@@ -32,7 +32,14 @@
     }
     abort() {
       this.signal.aborted = true;
-      this.signal.dispatchEvent(new Event('abort'));
+      try {
+        this.signal.dispatchEvent(new Event('abort'));
+      } catch (e) {
+        // For Internet Explorer 11:
+        const event = document.createEvent('Event');
+        event.initEvent('abort', false, true);
+        this.signal.dispatchEvent(event);
+      }
     }
     toString() {
       return '[object AbortController]';
