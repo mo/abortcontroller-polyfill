@@ -1,6 +1,6 @@
 {
   "name": "abortcontroller-polyfill",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Browser polyfill for the AbortController DOM API (stub that calls catch, doesn't actually abort request).",
   "main": "dist/browser-polyfill.js",
   "scripts": {
