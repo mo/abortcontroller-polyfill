@@ -23,19 +23,19 @@
 
     const nativeProto = Request.prototype;
     const NativeRequest = Request;
-    Request = function (input, init) {
-        let request = new NativeRequest(input, init);
-        if (init && init.signal) {
-            request.signal = init.signal;
-        }
-        return request;
-    }
+    self.Request = function (input, init) {
+      let request = new NativeRequest(input, init);
+      if (init && init.signal) {
+        request.signal = init.signal;
+      }
+      return request;
+    };
     Request.prototype = nativeProto;
   }
 
   const realFetch = fetch;
   const abortableFetch = (input, init) => {
-    let signal = (self.Request && Request.prototype.isPrototypeOf(input)) ? input.signal : init ? init.signal : undefined;
+    const signal = (self.Request && Request.prototype.isPrototypeOf(input)) ? input.signal : init ? init.signal : undefined;
 
     if (signal) {
       let abortError;
