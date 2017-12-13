@@ -29,9 +29,10 @@ If you're using webpack or similar, import it early in your client entrypoint .j
 ```import 'abortcontroller-polyfill'``` or ```require('abortcontroller-polyfill')```.
 
 # Contributors
-* Martin Olsson
-* Jimmy Wärting
+* [Martin Olsson](https://github.com/mo)
+* [Jimmy Wärting](https://github.com/jimmywarting)
 * [silverwind](https://github.com/silverwind)
+* [Rasmus Jacobsen](https://github.com/rmja)
 
 # See also
 
