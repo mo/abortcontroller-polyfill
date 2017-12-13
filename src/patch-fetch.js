@@ -20,11 +20,24 @@
     if (request.signal) {
       return;
     }
+
+    const nativeProto = Request.prototype;
+    const NativeRequest = Request;
+    Request = function (input, init) {
+        let request = new NativeRequest(input, init);
+        if (init && init.signal) {
+            request.signal = init.signal;
+        }
+        return request;
+    }
+    Request.prototype = nativeProto;
   }
 
   const realFetch = fetch;
   const abortableFetch = (input, init) => {
-    if (init && init.signal) {
+    let signal = Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : undefined;
+
+    if (signal) {
       let abortError;
       try {
         abortError = new DOMException('Aborted', 'AbortError');
@@ -36,13 +49,13 @@
       }
 
       // Return early if already aborted, thus avoiding making an HTTP request
-      if (init.signal.aborted) {
+      if (signal.aborted) {
         return Promise.reject(abortError);
       }
 
       // Turn an event into a promise, reject it once `abort` is dispatched
       const cancellation = new Promise((_, reject) => {
-        init.signal.addEventListener('abort', () => reject(abortError), {once: true});
+        signal.addEventListener('abort', () => reject(abortError), {once: true});
       });
 
       // Return the fastest promise (don't need to wait for request to finish)

@@ -2,10 +2,29 @@ const chalk = require('chalk');
 const path = require('path');
 const http = require('http');
 
+const TESTPAGE_URL = path.resolve(__dirname, 'testpage.html').replace('\\', '/');
+
 describe('basic tests', () => {
 
+  it('Request is patched', () => {
+    browser.url(TESTPAGE_URL);
+    const res = browser.executeAsync(async (done) => {
+      const controller = new AbortController();
+      const signal = controller.signal;
+      let request = new Request('/', {signal});
+      if (request.signal != signal) {
+        done('FAIL');
+      }
+      if (!Request.prototype.isPrototypeOf(request)) {
+        done('FAIL');
+      }
+      done('PASS');
+    });
+    expect(res.value).toBe('PASS');
+  });
+
   it('abort during fetch', () => {
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
@@ -26,8 +45,31 @@ describe('basic tests', () => {
     expect(getJSErrors().length).toBe(0);
   });
 
+  it('abort during fetch when Request has signal', () => {
+    browser.url(TESTPAGE_URL);
+    const res = browser.executeAsync(async (done) => {
+      setTimeout(() => {
+        done({name: 'fail'});
+      }, 2000);
+      const controller = new AbortController();
+      const signal = controller.signal;
+      setTimeout(() => {
+        controller.abort();
+      }, 500);
+      try {
+        let request = new Request('http://httpstat.us/200?sleep=1000', {signal});
+        await fetch(request);
+      } catch (err) {
+        done(err);
+      }
+    });
+    const err = res.value;
+    expect(err.name).toBe('AbortError');
+    expect(getJSErrors().length).toBe(0);
+  });
+
   it('abort before fetch started', () => {
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
@@ -51,7 +93,7 @@ describe('basic tests', () => {
       fail('fetch() made an HTTP request despite pre-aborted signal');
     }).listen(0);
     const boundListenPort = server.address().port;
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (boundListenPort, done) => {
       setTimeout(() => {
         done({name: 'fail'});
@@ -73,7 +115,7 @@ describe('basic tests', () => {
   });
 
   it('fetch without aborting', () => {
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
@@ -92,7 +134,7 @@ describe('basic tests', () => {
   });
 
   it('fetch without signal set', () => {
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
@@ -109,7 +151,7 @@ describe('basic tests', () => {
   });
 
   it('event listener fires "abort" event', () => {
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done({name: 'fail'});
@@ -125,7 +167,7 @@ describe('basic tests', () => {
   });
 
   it('signal.aborted is true after abort', () => {
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done('FAIL');
@@ -148,7 +190,7 @@ describe('basic tests', () => {
   });
 
   it('event listener doesn\'t fire "abort" event after removeEventListener', () => {
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
         done('PASS');
@@ -166,7 +208,7 @@ describe('basic tests', () => {
   });
 
   it('toString() output', () => {
-    browser.url('file://' + path.join(__dirname, 'testpage.html'));
+    browser.url(TESTPAGE_URL);
 
     let res;
 

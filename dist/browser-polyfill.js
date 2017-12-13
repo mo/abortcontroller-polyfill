@@ -113,11 +113,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     if (request.signal) {
       return;
     }
+
+    var nativeProto = Request.prototype;
+    var NativeRequest = Request;
+    Request = function Request(input, init) {
+      var request = new NativeRequest(input, init);
+      if (init && init.signal) {
+        request.signal = init.signal;
+      }
+      return request;
+    };
+    Request.prototype = nativeProto;
   }
 
   var realFetch = fetch;
   var abortableFetch = function abortableFetch(input, init) {
-    if (init && init.signal) {
+    var signal = Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : undefined;
+
+    if (signal) {
       var abortError = void 0;
       try {
         abortError = new DOMException('Aborted', 'AbortError');
@@ -129,13 +142,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       }
 
       // Return early if already aborted, thus avoiding making an HTTP request
-      if (init.signal.aborted) {
+      if (signal.aborted) {
         return Promise.reject(abortError);
       }
 
       // Turn an event into a promise, reject it once `abort` is dispatched
       var cancellation = new Promise(function (_, reject) {
-        init.signal.addEventListener('abort', function () {
+        signal.addEventListener('abort', function () {
           return reject(abortError);
         }, { once: true });
       });
