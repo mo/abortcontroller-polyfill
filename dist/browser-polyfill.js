@@ -116,7 +116,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var nativeProto = Request.prototype;
     var NativeRequest = Request;
-    Request = function Request(input, init) {
+    self.Request = function (input, init) {
       var request = new NativeRequest(input, init);
       if (init && init.signal) {
         request.signal = init.signal;
@@ -128,7 +128,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
   var realFetch = fetch;
   var abortableFetch = function abortableFetch(input, init) {
-    var signal = Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : undefined;
+    var signal = self.Request && Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : undefined;
 
     if (signal) {
       var abortError = void 0;
