@@ -35,7 +35,7 @@
 
   const realFetch = fetch;
   const abortableFetch = (input, init) => {
-    let signal = Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : undefined;
+    let signal = (self.Request && Request.prototype.isPrototypeOf(input)) ? input.signal : init ? init.signal : undefined;
 
     if (signal) {
       let abortError;
