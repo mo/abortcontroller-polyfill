@@ -2,7 +2,7 @@ const chalk = require('chalk');
 const path = require('path');
 const http = require('http');
 
-const TESTPAGE_URL = path.resolve(__dirname, 'testpage.html').replace('\\', '/');
+const TESTPAGE_URL = 'file://' + path.resolve(__dirname, 'testpage.html').replace('\\', '/');
 
 describe('basic tests', () => {
 
