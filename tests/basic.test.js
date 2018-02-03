@@ -207,6 +207,22 @@ describe('basic tests', () => {
     expect(getJSErrors().length).toBe(0);
   });
 
+  it('sinal.onabort called on abort', () => {
+    browser.url(TESTPAGE_URL);
+    const res = browser.executeAsync(async (done) => {
+      setTimeout(() => {
+        done('FAIL');
+      }, 200);
+      const controller = new AbortController();
+      controller.signal.onabort = () => {
+        done('PASS');
+      };
+      controller.abort();
+    });
+    expect(res.value).toBe('PASS');
+    expect(getJSErrors().length).toBe(0);
+  });
+
   it('toString() output', () => {
     browser.url(TESTPAGE_URL);
 
