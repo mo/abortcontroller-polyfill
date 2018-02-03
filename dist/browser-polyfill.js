@@ -15,19 +15,58 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     return;
   }
 
-  var Emitter = function Emitter() {
-    var _this = this;
+  var Emitter = function () {
+    function Emitter() {
+      _classCallCheck(this, Emitter);
 
-    _classCallCheck(this, Emitter);
+      this.listeners = {};
+    }
 
-    var delegate = document.createDocumentFragment();
-    var methods = ['addEventListener', 'dispatchEvent', 'removeEventListener'];
-    methods.forEach(function (method) {
-      return _this[method] = function () {
-        return delegate[method].apply(delegate, arguments);
-      };
-    });
-  };
+    _createClass(Emitter, [{
+      key: 'addEventListener',
+      value: function addEventListener(type, callback) {
+        if (!(type in this.listeners)) {
+          this.listeners[type] = [];
+        }
+        this.listeners[type].push(callback);
+      }
+    }, {
+      key: 'removeEventListener',
+      value: function removeEventListener(type, callback) {
+        if (!(type in this.listeners)) {
+          return;
+        }
+        var stack = this.listeners[type];
+        for (var i = 0, l = stack.length; i < l; i++) {
+          if (stack[i] === callback) {
+            stack.splice(i, 1);
+            return;
+          }
+        }
+      }
+    }, {
+      key: 'dispatchEvent',
+      value: function dispatchEvent(event) {
+        var _this = this;
+
+        if (!(event.type in this.listeners)) {
+          return;
+        }
+        var debounce = function debounce(callback) {
+          setTimeout(function () {
+            return callback.call(_this, event);
+          });
+        };
+        var stack = this.listeners[event.type];
+        for (var i = 0, l = stack.length; i < l; i++) {
+          debounce(stack[i]);
+        }
+        return !event.defaultPrevented;
+      }
+    }]);
+
+    return Emitter;
+  }();
 
   var AbortSignal = function (_Emitter) {
     _inherits(AbortSignal, _Emitter);
