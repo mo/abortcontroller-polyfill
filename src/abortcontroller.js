@@ -51,6 +51,16 @@
     toString() {
       return '[object AbortSignal]';
     }
+    dispatchEvent(event) {
+      if (event.type === 'abort'){
+        this.aborted = true;
+        if (typeof this.onabort === 'function') {
+          this.onabort.call(this, event)
+        }
+      }
+
+      super.dispatchEvent(event);
+    }
   }
 
   class AbortController {
@@ -58,7 +68,6 @@
       this.signal = new AbortSignal();
     }
     abort() {
-      this.signal.aborted = true;
       try {
         this.signal.dispatchEvent(new Event('abort'));
       } catch (e) {
