@@ -207,7 +207,7 @@ describe('basic tests', () => {
     expect(getJSErrors().length).toBe(0);
   });
 
-  it('sinal.onabort called on abort', () => {
+  it('signal.onabort called on abort', () => {
     browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {
       setTimeout(() => {
