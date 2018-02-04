@@ -121,7 +121,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           if (typeof document !== 'undefined') {
             // For Internet Explorer 11:
             event = document.createEvent('Event');
-            event.initEvent('abort');
+            event.initEvent('abort', false, false);
           } else {
             // Fallback where document isn't available:
             event = {
