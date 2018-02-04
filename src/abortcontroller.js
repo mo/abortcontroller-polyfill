@@ -68,14 +68,24 @@
       this.signal = new AbortSignal();
     }
     abort() {
+      let event;
       try {
-        this.signal.dispatchEvent(new Event('abort'));
+        event = new Event('abort');
       } catch (e) {
-        // For Internet Explorer 11:
-        const event = document.createEvent('Event');
-        event.initEvent('abort', false, true);
-        this.signal.dispatchEvent(event);
+        if (typeof document !== 'undefined') {
+          // For Internet Explorer 11:
+          event = document.createEvent('Event');
+          event.initEvent('abort');
+        } else {
+          // Fallback where document isn't available:
+          event = { 
+            type: 'abort', 
+            bubbles: false, 
+            cancelable: false 
+          };
+        }
       }
+      this.signal.dispatchEvent(event);
     }
     toString() {
       return '[object AbortController]';
