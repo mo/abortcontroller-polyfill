@@ -7,7 +7,7 @@
 
   class Emitter {
     constructor () {
-      this.listeners = {}
+      this.listeners = {};
     }
     addEventListener (type, callback) {
       if (!(type in this.listeners)) {
