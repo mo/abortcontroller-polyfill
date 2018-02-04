@@ -5,7 +5,8 @@
   "main": "dist/browser-polyfill.js",
   "scripts": {
     "build": "mkdir -p dist ; babel src/ --out-dir dist/ ; cat dist/abortcontroller.js dist/patch-fetch.js > dist/browser-polyfill.js",
-    "test": "SELENIUM_BROWSER=chrome E2E_HEADLESS=1 ./scripts/wdio-suppress-exitcode",
+    "test": "npm-run-all test-headless eslint",
+    "test-headless": "SELENIUM_BROWSER=chrome E2E_HEADLESS=1 ./scripts/wdio-suppress-exitcode",
     "test-chrome": "SELENIUM_BROWSER=chrome ./scripts/wdio-suppress-exitcode",
     "test-firefox": "SELENIUM_BROWSER=firefox ./scripts/wdio-suppress-exitcode",
     "test-inspect-brk": "E2E_WDIO_EXEC_ARGV=--inspect-brk npm run test-chrome",
@@ -26,6 +27,7 @@
     "babel-cli": "^6.26.0",
     "babel-preset-latest": "^6.24.1",
     "eslint": "^4.13.1",
+    "npm-run-all": "^4.1.2",
     "updtr": "^2.0.0",
     "wdio-jasmine-framework": "^0.3.2",
     "wdio-selenium-standalone-service": "0.0.9",
