@@ -52,10 +52,10 @@
       return '[object AbortSignal]';
     }
     dispatchEvent(event) {
-      if (event.type === 'abort'){
+      if (event.type === 'abort') {
         this.aborted = true;
         if (typeof this.onabort === 'function') {
-          this.onabort.call(this, event)
+          this.onabort.call(this, event);
         }
       }
 
