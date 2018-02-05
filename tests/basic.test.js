@@ -6,6 +6,21 @@ const TESTPAGE_URL = 'file://' + path.resolve(__dirname, 'testpage.html').replac
 
 describe('basic tests', () => {
 
+  it('AbortSignal constructor', () => {
+    browser.url(TESTPAGE_URL);
+    const res = browser.executeAsync(async (done) => {
+      const signal = new AbortSignal();
+      if (signal.aborted !== false) {
+        done('FAIL');
+      }
+      if (signal.onabort !== null) {
+        done('FAIL');
+      }
+      done('PASS');
+    });
+    expect(res.value).toBe('PASS');
+  });
+
   it('Request is patched', () => {
     browser.url(TESTPAGE_URL);
     const res = browser.executeAsync(async (done) => {

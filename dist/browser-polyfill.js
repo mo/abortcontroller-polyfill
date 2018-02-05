@@ -79,6 +79,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       var _this2 = _possibleConstructorReturn(this, (AbortSignal.__proto__ || Object.getPrototypeOf(AbortSignal)).call(this));
 
       _this2.aborted = false;
+      _this2.onabort = null;
       return _this2;
     }
 

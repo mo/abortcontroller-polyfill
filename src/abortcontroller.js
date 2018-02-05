@@ -47,6 +47,7 @@
       super();
 
       this.aborted = false;
+      this.onabort = null;
     }
     toString() {
       return '[object AbortSignal]';
