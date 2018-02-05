@@ -1,9 +1,9 @@
-# AbortController "polyfill"
+# AbortController polyfill for abortable fetch()
 
 Minimal stubs so that the AbortController DOM API for terminating ```fetch()``` requests can be used
 in browsers that doesn't yet implement it. This "polyfill" doesn't actually close the connection
-when the request is aborted, but it calls ```.catch()``` with ```err.name == 'AbortError'``` instead
-of ```.then()```.
+when the request is aborted, but it will call ```.catch()``` with ```err.name == 'AbortError'```
+instead of ```.then()```.
 
 ```js
 const controller = new AbortController();
@@ -25,13 +25,23 @@ You can read about the [AbortController](https://dom.spec.whatwg.org/#aborting-o
 $ npm install --save abortcontroller-polyfill
 ```
 
-If you're using webpack or similar, import it early in your client entrypoint .js file using
-```import 'abortcontroller-polyfill'``` or ```require('abortcontroller-polyfill')```.
+If you're using webpack or similar, you then import it early in your client entrypoint .js file using
 
-# How to use in 'create-react-app'
+```js
+import 'abortcontroller-polyfill'
+```
 
-create-react-app enforces the no-undef eslint rule at compile time so you might
-run into an error like:
+or
+
+```js
+require('abortcontroller-polyfill')
+```
+
+## Using it along with 'create-react-app'
+
+create-react-app enforces the no-undef eslint rule at compile time so if your
+version of eslint does not list ```AbortController``` etc as a known global for
+the ```browser``` environment, then you might run into an compile error like:
 
 ```
   'AbortController' is not defined  no-undef
@@ -49,10 +59,6 @@ This can be worked around by (temporarily, details [here](https://github.com/mo/
 * [silverwind](https://github.com/silverwind)
 * [Rasmus Jacobsen](https://github.com/rmja)
 * [João Vieira](https://github.com/joaovieira)
-
-# See also
-
-* [PR for fetch specification](https://github.com/whatwg/fetch/pull/523)
 
 # License
 
