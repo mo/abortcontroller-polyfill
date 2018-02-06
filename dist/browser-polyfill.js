@@ -256,7 +256,7 @@ function patchFetch(self) {
     Request.prototype = nativeProto;
   }
 
-  var realFetch = fetch;
+  var realFetch = self.fetch;
   var abortableFetch = function abortableFetch(input, init) {
     var signal = self.Request && Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : undefined;
 
