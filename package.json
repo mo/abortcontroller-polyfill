@@ -2,7 +2,7 @@
   "name": "abortcontroller-polyfill",
   "version": "1.1.2",
   "description": "Browser polyfill for the AbortController DOM API (stub that calls catch, doesn't actually abort request).",
-  "main": "dist/browser-polyfill.js",
+  "main": "dist/abortcontroller.js",
   "scripts": {
     "build": "mkdir -p dist ; babel src/ --out-dir dist/ ; cat dist/abortcontroller.js dist/patch-fetch.js > dist/browser-polyfill.js",
     "test": "npm-run-all test-headless eslint",
