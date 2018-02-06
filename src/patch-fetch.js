@@ -1,5 +1,4 @@
-
-(function(self) {
+export default function patchFetch(self) {
   'use strict';
 
   if (!self.fetch) {
@@ -66,5 +65,4 @@
   };
 
   self.fetch = abortableFetch;
-
-})(typeof self !== 'undefined' ? self : this);
+}
