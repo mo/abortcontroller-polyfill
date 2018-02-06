@@ -1,5 +1,4 @@
-
-(function(self) {
+export default function patchFetch(self) {
   'use strict';
 
   if (!self.fetch) {
@@ -33,7 +32,7 @@
     Request.prototype = nativeProto;
   }
 
-  const realFetch = fetch;
+  const realFetch = self.fetch;
   const abortableFetch = (input, init) => {
     const signal = (self.Request && Request.prototype.isPrototypeOf(input)) ? input.signal : init ? init.signal : undefined;
 
@@ -66,5 +65,4 @@
   };
 
   self.fetch = abortableFetch;
-
-})(typeof self !== 'undefined' ? self : this);
+}

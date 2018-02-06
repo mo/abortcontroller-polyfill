@@ -1,8 +1,6 @@
 'use strict';
 
-(function (self) {
-  'use strict';
-
+function patchFetch(self) {
   if (!self.fetch) {
     console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
     return;
@@ -34,7 +32,7 @@
     Request.prototype = nativeProto;
   }
 
-  var realFetch = fetch;
+  var realFetch = self.fetch;
   var abortableFetch = function abortableFetch(input, init) {
     var signal = self.Request && Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : undefined;
 
@@ -69,4 +67,6 @@
   };
 
   self.fetch = abortableFetch;
-})(typeof self !== 'undefined' ? self : undefined);
+}
+
+module.exports = patchFetch;
