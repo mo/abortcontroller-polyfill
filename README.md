@@ -59,6 +59,7 @@ This can be worked around by (temporarily, details [here](https://github.com/mo/
 * [silverwind](https://github.com/silverwind)
 * [Rasmus Jacobsen](https://github.com/rmja)
 * [João Vieira](https://github.com/joaovieira)
+* [Cyril Auburtin](https://github.com/caub)
 
 # License
 
