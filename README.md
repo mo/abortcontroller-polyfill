@@ -1,5 +1,7 @@
 # AbortController polyfill for abortable fetch()
 
+[![npm version](https://badge.fury.io/js/abortcontroller-polyfill.svg)](https://badge.fury.io/js/abortcontroller-polyfill)
+
 Minimal stubs so that the AbortController DOM API for terminating ```fetch()``` requests can be used
 in browsers that doesn't yet implement it. This "polyfill" doesn't actually close the connection
 when the request is aborted, but it will call ```.catch()``` with ```err.name == 'AbortError'```
