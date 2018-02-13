@@ -18,11 +18,6 @@
     "eslint": "eslint src/ tests/",
     "updtr": "updtr"
   },
-  "babel": {
-    "presets": [
-      "latest"
-    ]
-  },
   "keywords": [],
   "repository": "mo/abortcontroller-polyfill",
   "author": "Martin Olsson <martin@minimum.se> (https://mo.github.io)",
