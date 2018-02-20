@@ -55,6 +55,24 @@ This can be worked around by (temporarily, details [here](https://github.com/mo/
   const AbortController = window.AbortController;
 ```
 
+# Using it on Node.js
+
+```js
+const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/abortcontroller');
+const { fetch } = abortableFetch(require('node-fetch'));
+// or
+// import AbortController, { abortableFetch } from 'abortcontroller-polyfill/dist/abortcontroller';
+// import _fetch from 'node-fetch';
+// const { fetch } = abortableFetch(_fetch);
+
+const controller = new AbortController();
+fetch('/some/url', {signal: controller.signal}).then(res => res.json()).then(console.log)
+  .catch(err => {
+    consoe.log(err)
+  });
+controller.abort();
+```
+
 # Contributors
 * [Martin Olsson](https://github.com/mo)
 * [Jimmy Wärting](https://github.com/jimmywarting)
