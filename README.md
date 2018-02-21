@@ -17,6 +17,7 @@ fetch('/some/url', {signal}).then(res => res.json()).then(data => {
     return;
   }
 });
+// controller.abort(); // can be called at any time
 ```
 
 You can read about the [AbortController](https://dom.spec.whatwg.org/#aborting-ongoing-activities) API in the DOM specification.
@@ -53,6 +54,22 @@ This can be worked around by (temporarily, details [here](https://github.com/mo/
 
 ```js
   const AbortController = window.AbortController;
+```
+
+# Using it on Node.js
+
+```js
+const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/abortcontroller');
+const { fetch } = abortableFetch(require('node-fetch'));
+// or
+// import AbortController, { abortableFetch } from 'abortcontroller-polyfill/dist/abortcontroller';
+// import _fetch from 'node-fetch';
+// const { fetch } = abortableFetch(_fetch);
+```
+or if you're lazy
+```js
+global.fetch = require('node-fetch');
+require('abortcontroller-polyfill');
 ```
 
 # Contributors
