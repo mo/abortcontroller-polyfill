@@ -1,5 +1,4 @@
-import {AbortController, AbortSignal} from './abortcontroller';
-import patchFetch from './patch-fetch';
+import AbortController, {AbortSignal, abortableFetch} from './abortcontroller';
 
 (function(self) {
   'use strict';
@@ -10,7 +9,8 @@ import patchFetch from './patch-fetch';
 
   self.AbortController = AbortController;
   self.AbortSignal = AbortSignal;
-
-  patchFetch(self);
+  const {fetch, Request} = abortableFetch(self);
+  self.fetch = fetch;
+  self.Request = Request;
 
 })(typeof self !== 'undefined' ? self : this);
