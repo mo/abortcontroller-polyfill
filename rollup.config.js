@@ -19,7 +19,8 @@ export default [{
   input: 'src/abortcontroller.js',
   output: {
     file: 'dist/abortcontroller.js',
-    format: 'cjs'
+    format: 'cjs',
+    exports: 'named'
   },
   plugins
 }];
