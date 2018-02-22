@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const path = require('path');
 const http = require('http');
+const fs = require('fs');
 
 const TESTPAGE_URL = 'file://' + path.resolve(__dirname, 'testpage.html').replace('\\', '/');
 
@@ -236,6 +237,39 @@ describe('basic tests', () => {
     });
     expect(res.value).toBe('PASS');
     expect(getJSErrors().length).toBe(0);
+  });
+
+  it('fetch from web worker works', () => {
+    // Need to load from webserver because worker because security policy
+    // prevents file:// pages from "loading arbitrary .js files" as workers.
+    const server = http.createServer((req, res) => {
+      if (req.url === '/') {
+        // No need to load polyfill in main JS context, we're only gonna run it
+        // inside the worker only
+        res.end('');
+      } else if (req.url === '/browser-polyfill.js') {
+        res.end(fs.readFileSync(path.join(__dirname, '../dist/browser-polyfill.js')));
+      } else if (req.url === '/web-worker.js') {
+        res.end(fs.readFileSync(path.join(__dirname, 'web-worker.js')));
+      }
+    }).listen(0);
+    const boundListenPort = server.address().port;
+
+    browser.url(`http://127.0.0.1:${boundListenPort}`);
+    const res = browser.executeAsync(async (done) => {
+      setTimeout(() => {
+        done('FAIL');
+      }, 2000);
+      const worker = new Worker('web-worker.js');
+      worker.postMessage('run-test');
+      worker.onmessage = (ev) => {
+        const result = ev.data;
+        done(result);
+      };
+    });
+    expect(res.value).toBe('PASS');
+    expect(getJSErrors().length).toBe(0);
+    server.close();
   });
 
   it('toString() output', () => {
