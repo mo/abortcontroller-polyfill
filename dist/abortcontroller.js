@@ -15,12 +15,17 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * @param {fetch, Request = fetch.Request}
  * @returns {fetch: abortableFetch, Request: AbortableRequest}
  */
-function abortableFetchDecorator(_ref) {
-  var fetch = _ref.fetch,
-      _ref$Request = _ref.Request,
-      NativeRequest = _ref$Request === undefined ? fetch.Request : _ref$Request,
-      _ref$AbortController = _ref.AbortController,
-      NativeAbortController = _ref$AbortController === undefined ? AbortController : _ref$AbortController;
+function abortableFetchDecorator(patchTargets) {
+  if ('function' == typeof patchTargets) {
+    patchTargets = { fetch: patchTargets };
+  }
+  var _patchTargets = patchTargets,
+      fetch = _patchTargets.fetch,
+      _patchTargets$Request = _patchTargets.Request,
+      NativeRequest = _patchTargets$Request === undefined ? fetch.Request : _patchTargets$Request,
+      _patchTargets$AbortCo = _patchTargets.AbortController,
+      NativeAbortController = _patchTargets$AbortCo === undefined ? AbortController : _patchTargets$AbortCo;
+
 
   var Request = NativeRequest;
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without

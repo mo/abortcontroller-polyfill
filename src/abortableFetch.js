@@ -13,7 +13,16 @@ import {default as SyntheticAbortController} from './abortcontroller';
  * @param {fetch, Request = fetch.Request}
  * @returns {fetch: abortableFetch, Request: AbortableRequest}
  */
-export default function abortableFetchDecorator({fetch, Request: NativeRequest = fetch.Request, AbortController: NativeAbortController = SyntheticAbortController}) {
+export default function abortableFetchDecorator(patchTargets) {
+  if ('function' == typeof patchTargets) {
+    patchTargets = {fetch: patchTargets};
+  }
+  const {
+    fetch,
+    Request: NativeRequest = fetch.Request,
+    AbortController: NativeAbortController = SyntheticAbortController
+  } = patchTargets;
+
   let Request = NativeRequest;
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without
   // defining window.Request, and this polyfill need to work on top of unfetch
