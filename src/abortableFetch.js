@@ -16,11 +16,11 @@ export default function abortableFetchDecorator({fetch, Request: NativeRequest =
     // Do feature detecting
     const controller = new AbortController();
     const signal = controller.signal;
-    const request = new NativeRequest('/', { signal });
+    const request = new Request('/', { signal });
 
     // Browser already supports abortable fetch (like FF v57 and fetch-polyfill)
     if (request.signal) {
-      return NativeRequest;
+      return {fetch, Request};
     }
 
     Request = function Request(input, init) {
