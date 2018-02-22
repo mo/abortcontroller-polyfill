@@ -9,14 +9,14 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "test": "npm-run-all test-headless eslint",
+    "prepare": "npm run build",
+    "test": "npm run build && npm-run-all test-headless eslint",
     "test-headless": "SELENIUM_BROWSER=chrome E2E_HEADLESS=1 ./scripts/wdio-suppress-exitcode",
     "test-chrome": "SELENIUM_BROWSER=chrome ./scripts/wdio-suppress-exitcode",
     "test-firefox": "SELENIUM_BROWSER=firefox ./scripts/wdio-suppress-exitcode",
     "test-inspect-brk": "E2E_WDIO_EXEC_ARGV=--inspect-brk npm run test-chrome",
     "test-verbose": "SELENIUM_BROWSER=chrome E2E_LOG_LEVEL=verbose wdio wdio.conf.js",
-    "eslint": "eslint src/ tests/",
-    "updtr": "updtr"
+    "eslint": "eslint src/ tests/"
   },
   "keywords": [],
   "repository": "mo/abortcontroller-polyfill",

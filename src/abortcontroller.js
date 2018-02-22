@@ -1,3 +1,5 @@
+export {default as abortableFetch} from './abortableFetch';
+
 class Emitter {
   constructor() {
     this.listeners = {};
@@ -85,6 +87,8 @@ export class AbortController {
     return '[object AbortController]';
   }
 }
+
+export default AbortController;
 
 if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
   // These are necessary to make sure that we get correct output for:

@@ -22,11 +22,4 @@ export default [{
     format: 'cjs'
   },
   plugins
-}, {
-  input: 'src/patch-fetch.js',
-  output: {
-    file: 'dist/patch-fetch.js',
-    format: 'cjs'
-  },
-  plugins
 }];

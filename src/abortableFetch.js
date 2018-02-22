@@ -1,15 +1,18 @@
-export default function patchFetch(self) {
-  'use strict';
-
-  if (!self.fetch) {
+/**
+ * @param {fetch, Request = fetch.Request}
+ * @returns {fetch: abortableFetch, Request: AbortableRequest} 
+ */
+export default function abortableFetchDecorator({fetch, Request: NativeRequest = fetch.Request}) {
+  if (!fetch) {
     console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
     return;
   }
 
+  let Request = NativeRequest;
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without
   // defining window.Request, and this polyfill need to work on top of unfetch
-  // so the below feature detection is wrapped in "if (self.Request) { ... }".
-  if (self.Request) {
+  // so the below feature detection is wrapped in if (Request)
+  if (Request) {
     // Do feature detecting
     const controller = new AbortController();
     const signal = controller.signal;
@@ -17,24 +20,22 @@ export default function patchFetch(self) {
 
     // Browser already supports abortable fetch (like FF v57 and fetch-polyfill)
     if (request.signal) {
-      return;
+      return {fetch, Request};
     }
 
-    const nativeProto = Request.prototype;
-    const NativeRequest = Request;
-    self.Request = function (input, init) {
+    Request = function Request(input, init) {
       let request = new NativeRequest(input, init);
       if (init && init.signal) {
         request.signal = init.signal;
       }
       return request;
     };
-    Request.prototype = nativeProto;
+    Request.prototype = NativeRequest.prototype;
   }
-
-  const realFetch = self.fetch;
+  
+  const realFetch = fetch;
   const abortableFetch = (input, init) => {
-    const signal = (self.Request && Request.prototype.isPrototypeOf(input)) ? input.signal : init ? init.signal : undefined;
+    const signal = (Request && Request.prototype.isPrototypeOf(input)) ? input.signal : init ? init.signal : undefined;
 
     if (signal) {
       let abortError;
@@ -64,5 +65,5 @@ export default function patchFetch(self) {
     return realFetch(input, init);
   };
 
-  self.fetch = abortableFetch;
+  return {fetch: abortableFetch, Request};
 }
