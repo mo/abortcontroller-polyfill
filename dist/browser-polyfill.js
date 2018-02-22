@@ -314,6 +314,6 @@ if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 
   self.fetch = fetch;
   self.Request = Request;
-})(typeof self !== 'undefined' ? self : undefined);
+})(typeof self !== 'undefined' ? self : global);
 
 })));
