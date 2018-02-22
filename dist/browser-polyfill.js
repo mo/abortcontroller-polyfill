@@ -17,7 +17,7 @@
  * @param {fetch, Request = fetch.Request}
  * @returns {fetch: abortableFetch, Request: AbortableRequest}
  */
-function abortableFetchDecorator(patchTargets) {
+function abortableFetchDecorator$$1(patchTargets) {
   if ('function' == typeof patchTargets) {
     patchTargets = { fetch: patchTargets };
   }
@@ -115,12 +115,6 @@ var createClass = function () {
   };
 }();
 
-
-
-
-
-
-
 var get = function get(object, property, receiver) {
   if (object === null) object = Function.prototype;
   var desc = Object.getOwnPropertyDescriptor(object, property);
@@ -161,16 +155,6 @@ var inherits = function (subClass, superClass) {
   });
   if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 };
-
-
-
-
-
-
-
-
-
-
 
 var possibleConstructorReturn = function (self, call) {
   if (!self) {
@@ -312,6 +296,7 @@ if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 }
 
 (function (self) {
+
   if (self.AbortController) {
     return;
   }
@@ -324,7 +309,7 @@ if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
   self.AbortController = AbortController;
   self.AbortSignal = AbortSignal;
 
-  var _abortableFetch = abortableFetchDecorator(self),
+  var _abortableFetch = abortableFetchDecorator$$1(self),
       fetch = _abortableFetch.fetch,
       Request = _abortableFetch.Request;
 
