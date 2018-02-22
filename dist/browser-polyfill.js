@@ -13,11 +13,6 @@ function abortableFetchDecorator(_ref) {
       _ref$Request = _ref.Request,
       NativeRequest = _ref$Request === undefined ? fetch.Request : _ref$Request;
 
-  if (!fetch) {
-    console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
-    return;
-  }
-
   var Request = NativeRequest;
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without
   // defining window.Request, and this polyfill need to work on top of unfetch
@@ -302,6 +297,11 @@ if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 
 (function (self) {
   if (self.AbortController) {
+    return;
+  }
+
+  if (!self.fetch) {
+    console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
     return;
   }
 

@@ -3,11 +3,6 @@
  * @returns {fetch: abortableFetch, Request: AbortableRequest}
  */
 export default function abortableFetchDecorator({fetch, Request: NativeRequest = fetch.Request}) {
-  if (!fetch) {
-    console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
-    return;
-  }
-
   let Request = NativeRequest;
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without
   // defining window.Request, and this polyfill need to work on top of unfetch

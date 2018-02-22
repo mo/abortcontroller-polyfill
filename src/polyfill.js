@@ -7,6 +7,11 @@ import AbortController, {AbortSignal, abortableFetch} from './abortcontroller';
     return;
   }
 
+  if (!self.fetch) {
+    console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
+    return;
+  }
+
   self.AbortController = AbortController;
   self.AbortSignal = AbortSignal;
   const {fetch, Request} = abortableFetch(self);
