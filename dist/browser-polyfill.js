@@ -20,7 +20,9 @@
 function abortableFetchDecorator(_ref) {
   var fetch = _ref.fetch,
       _ref$Request = _ref.Request,
-      NativeRequest = _ref$Request === undefined ? fetch.Request : _ref$Request;
+      NativeRequest = _ref$Request === undefined ? fetch.Request : _ref$Request,
+      _ref$AbortController = _ref.AbortController,
+      NativeAbortController = _ref$AbortController === undefined ? AbortController : _ref$AbortController;
 
   var Request = NativeRequest;
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without
@@ -28,7 +30,7 @@ function abortableFetchDecorator(_ref) {
   // so the below feature detection is wrapped in if (Request)
   if (Request) {
     // Do feature detecting
-    var controller = new AbortController();
+    var controller = new NativeAbortController();
     var signal = controller.signal;
     var request = new Request('/', { signal: signal });
 
@@ -259,7 +261,7 @@ var AbortSignal = function (_Emitter) {
   return AbortSignal;
 }(Emitter);
 
-var AbortController$1 = function () {
+var AbortController = function () {
   function AbortController() {
     classCallCheck(this, AbortController);
 
@@ -300,7 +302,7 @@ var AbortController$1 = function () {
 if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
   // These are necessary to make sure that we get correct output for:
   // Object.prototype.toString.call(new AbortController())
-  AbortController$1.prototype[Symbol.toStringTag] = 'AbortController';
+  AbortController.prototype[Symbol.toStringTag] = 'AbortController';
   AbortSignal.prototype[Symbol.toStringTag] = 'AbortSignal';
 }
 
@@ -314,7 +316,7 @@ if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
     return;
   }
 
-  self.AbortController = AbortController$1;
+  self.AbortController = AbortController;
   self.AbortSignal = AbortSignal;
 
   var _abortableFetch = abortableFetchDecorator(self),

@@ -1,3 +1,5 @@
+import {default as SyntheticAbortController} from './abortcontroller';
+
 /**
  * Note: the "fetch.Request" default value is available for fetch imported from
  * the "node-fetch" package and not in browsers. This is OK since browsers
@@ -11,14 +13,14 @@
  * @param {fetch, Request = fetch.Request}
  * @returns {fetch: abortableFetch, Request: AbortableRequest}
  */
-export default function abortableFetchDecorator({fetch, Request: NativeRequest = fetch.Request}) {
+export default function abortableFetchDecorator({fetch, Request: NativeRequest = fetch.Request, AbortController: NativeAbortController = SyntheticAbortController}) {
   let Request = NativeRequest;
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without
   // defining window.Request, and this polyfill need to work on top of unfetch
   // so the below feature detection is wrapped in if (Request)
   if (Request) {
     // Do feature detecting
-    const controller = new AbortController();
+    const controller = new NativeAbortController();
     const signal = controller.signal;
     const request = new Request('/', { signal });
 
