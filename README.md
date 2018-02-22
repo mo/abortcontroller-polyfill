@@ -72,6 +72,26 @@ global.fetch = require('node-fetch');
 require('abortcontroller-polyfill');
 ```
 
+If you also need a ```Request``` class with support for aborting you can do:
+
+```js
+const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/abortcontroller');
+const _nodeFetch = require('node-fetch');
+const { fetch, Request } = abortableFetch({fetch: _nodeFetch, Request: _nodeFetch.Request});
+
+const controller = new AbortController();
+const signal = controller.signal;
+controller.abort();
+fetch(Request("http://api.github.com", {signal}))
+  .then(r => r.json())
+  .then(j => console.log(j))
+  .catch(err => {
+      if (err.name === 'AbortError') {
+          console.log('aborted');
+      }
+  })
+```
+
 # Contributors
 * [Martin Olsson](https://github.com/mo)
 * [Jimmy Wärting](https://github.com/jimmywarting)
