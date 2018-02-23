@@ -14,7 +14,7 @@ import {default as SyntheticAbortController} from './abortcontroller';
  * @returns {fetch: abortableFetch, Request: AbortableRequest}
  */
 export default function abortableFetchDecorator(patchTargets) {
-  if ('function' == typeof patchTargets) {
+  if ('function' === typeof patchTargets) {
     patchTargets = {fetch: patchTargets};
   }
   const {

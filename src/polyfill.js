@@ -18,4 +18,4 @@ import AbortController, {AbortSignal, abortableFetch} from './abortcontroller';
   self.fetch = fetch;
   self.Request = Request;
 
-})(typeof self !== 'undefined' ? self : global);
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);
