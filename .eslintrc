@@ -21,6 +21,7 @@
         "linebreak-style": [ "error", "unix" ],
         "quotes": [ "error", "single" ],
         "semi": [ "error", "always" ],
+        "eqeqeq": "error",
         "no-unused-vars": ["warn", { "vars": "all", "args": "none", "ignoreRestSiblings": true }],
         "no-console": "off",
         "no-debugger": "warn",

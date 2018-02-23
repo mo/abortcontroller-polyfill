@@ -16,7 +16,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * @returns {fetch: abortableFetch, Request: AbortableRequest}
  */
 function abortableFetchDecorator$$1(patchTargets) {
-  if ('function' == typeof patchTargets) {
+  if ('function' === typeof patchTargets) {
     patchTargets = { fetch: patchTargets };
   }
   var _patchTargets = patchTargets,

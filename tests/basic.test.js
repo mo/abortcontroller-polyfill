@@ -28,7 +28,7 @@ describe('basic tests', () => {
       const controller = new AbortController();
       const signal = controller.signal;
       let request = new Request('/', {signal});
-      if (request.signal != signal) {
+      if (request.signal !== signal) {
         done('FAIL');
       }
       if (!Request.prototype.isPrototypeOf(request)) {
@@ -311,7 +311,7 @@ function getJSErrors() {
     const allLogEntries = browser.log('browser').value;
     const jsErrors = allLogEntries.filter(logEntry => logEntry.level === 'SEVERE');
     allLogEntries.forEach(error => {
-      if (error.level == 'SEVERE') {
+      if (error.level === 'SEVERE') {
         console.log(chalk.red(`[${error.level}] ${error.message}`));
       } else {
         console.log(`[${error.level}] ${error.message}`);
