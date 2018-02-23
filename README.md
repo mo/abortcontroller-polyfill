@@ -17,6 +17,7 @@ fetch('/some/url', {signal}).then(res => res.json()).then(data => {
     return;
   }
 });
+// controller.abort(); // can be called at any time
 ```
 
 You can read about the [AbortController](https://dom.spec.whatwg.org/#aborting-ongoing-activities) API in the DOM specification.
@@ -53,6 +54,42 @@ This can be worked around by (temporarily, details [here](https://github.com/mo/
 
 ```js
   const AbortController = window.AbortController;
+```
+
+# Using it on Node.js
+
+```js
+const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/abortcontroller');
+const { fetch } = abortableFetch(require('node-fetch'));
+// or
+// import AbortController, { abortableFetch } from 'abortcontroller-polyfill/dist/abortcontroller';
+// import _fetch from 'node-fetch';
+// const { fetch } = abortableFetch(_fetch);
+```
+or if you're lazy
+```js
+global.fetch = require('node-fetch');
+require('abortcontroller-polyfill');
+```
+
+If you also need a ```Request``` class with support for aborting you can do:
+
+```js
+const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/abortcontroller');
+const _nodeFetch = require('node-fetch');
+const { fetch, Request } = abortableFetch({fetch: _nodeFetch, Request: _nodeFetch.Request});
+
+const controller = new AbortController();
+const signal = controller.signal;
+controller.abort();
+fetch(Request("http://api.github.com", {signal}))
+  .then(r => r.json())
+  .then(j => console.log(j))
+  .catch(err => {
+      if (err.name === 'AbortError') {
+          console.log('aborted');
+      }
+  })
 ```
 
 # Contributors

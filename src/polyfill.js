@@ -1,5 +1,4 @@
-import {AbortController, AbortSignal} from './abortcontroller';
-import patchFetch from './patch-fetch';
+import AbortController, {AbortSignal, abortableFetch} from './abortcontroller';
 
 (function(self) {
   'use strict';
@@ -8,9 +7,15 @@ import patchFetch from './patch-fetch';
     return;
   }
 
+  if (!self.fetch) {
+    console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
+    return;
+  }
+
   self.AbortController = AbortController;
   self.AbortSignal = AbortSignal;
+  const {fetch, Request} = abortableFetch(self);
+  self.fetch = fetch;
+  self.Request = Request;
 
-  patchFetch(self);
-
-})(typeof self !== 'undefined' ? self : this);
+})(typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : this);

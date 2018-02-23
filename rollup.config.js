@@ -19,14 +19,8 @@ export default [{
   input: 'src/abortcontroller.js',
   output: {
     file: 'dist/abortcontroller.js',
-    format: 'cjs'
-  },
-  plugins
-}, {
-  input: 'src/patch-fetch.js',
-  output: {
-    file: 'dist/patch-fetch.js',
-    format: 'cjs'
+    format: 'cjs',
+    exports: 'named'
   },
   plugins
 }];

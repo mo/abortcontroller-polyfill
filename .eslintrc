@@ -1,4 +1,5 @@
 {
+    "extends": ["eslint:recommended"],
     "env": {
         "node": true,
         "browser": true,
@@ -8,7 +9,6 @@
       "AbortController": true,
       "AbortSignal": true
     },
-    "extends": ["eslint:recommended"],
     "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module",
@@ -21,6 +21,7 @@
         "linebreak-style": [ "error", "unix" ],
         "quotes": [ "error", "single" ],
         "semi": [ "error", "always" ],
+        "eqeqeq": "error",
         "no-unused-vars": ["warn", { "vars": "all", "args": "none", "ignoreRestSiblings": true }],
         "no-console": "off",
         "no-debugger": "warn",
