@@ -40,6 +40,24 @@ or
 require('abortcontroller-polyfill')
 ```
 
+## Using it on browsers without fetch
+
+If you need to support browsers where fetch is not available at all (for example
+Internet Explorer 11), you first need to install a fetch polyfill and then import
+the ```abortcontroller-polyfill``` afterwards.
+
+The [unfetch](https://www.npmjs.com/package/unfetch) npm package offers a minimal ```fetch()```
+implementation (though it does not offer for example a ```Request``` class). If you need a polyfill that
+implements the full Fetch specification, use the
+[whatwg-fetch](https://www.npmjs.com/package/whatwg-fetch) npm package instead. Typically you will
+also need to load a polyfill that implements ES6 promises, for example
+[promise-polyfill](https://www.npmjs.com/package/promise-polyfill), and of course you need to avoid
+ES6 arrow functions and template literals.
+
+Example projects showing abortable fetch setup so that it works even in Internet Explorer 11, using
+both unfetch and GitHub fetch, is available
+[here](https://github.com/mo/abortcontroller-polyfill-examples).
+
 ## Using it along with 'create-react-app'
 
 create-react-app enforces the no-undef eslint rule at compile time so if your
