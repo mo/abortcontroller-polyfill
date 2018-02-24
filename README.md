@@ -58,11 +58,13 @@ This can be worked around by (temporarily, details [here](https://github.com/mo/
 
 # Using it on Node.js
 
+You can either import it as a [ponyfill](https://ponyfill.com/) without modifying globals:
+
 ```js
-const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/abortcontroller');
+const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/cjs-ponyfill');
 const { fetch } = abortableFetch(require('node-fetch'));
 // or
-// import AbortController, { abortableFetch } from 'abortcontroller-polyfill/dist/abortcontroller';
+// import AbortController, { abortableFetch } from 'abortcontroller-polyfill/dist/cjs-ponyfill';
 // import _fetch from 'node-fetch';
 // const { fetch } = abortableFetch(_fetch);
 ```
@@ -75,7 +77,7 @@ require('abortcontroller-polyfill');
 If you also need a ```Request``` class with support for aborting you can do:
 
 ```js
-const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/abortcontroller');
+const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/cjs-ponyfill');
 const _nodeFetch = require('node-fetch');
 const { fetch, Request } = abortableFetch({fetch: _nodeFetch, Request: _nodeFetch.Request});
 
@@ -91,6 +93,8 @@ fetch(Request("http://api.github.com", {signal}))
       }
   })
 ```
+
+See also Node.js examples [here](https://github.com/mo/abortcontroller-polyfill-examples/tree/master/node)
 
 # Contributors
 * [Martin Olsson](https://github.com/mo)

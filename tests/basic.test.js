@@ -247,8 +247,8 @@ describe('basic tests', () => {
         // No need to load polyfill in main JS context, we're only gonna run it
         // inside the worker only
         res.end('');
-      } else if (req.url === '/browser-polyfill.js') {
-        res.end(fs.readFileSync(path.join(__dirname, '../dist/browser-polyfill.js')));
+      } else if (req.url === '/umd-polyfill.js') {
+        res.end(fs.readFileSync(path.join(__dirname, '../dist/umd-polyfill.js')));
       } else if (req.url === '/web-worker.js') {
         res.end(fs.readFileSync(path.join(__dirname, 'web-worker.js')));
       }

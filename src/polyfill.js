@@ -1,4 +1,5 @@
-import AbortController, {AbortSignal, abortableFetch} from './abortcontroller';
+import AbortController, {AbortSignal} from './abortcontroller';
+import abortableFetch from './abortableFetch';
 
 (function(self) {
   'use strict';

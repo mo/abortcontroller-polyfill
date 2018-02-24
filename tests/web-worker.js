@@ -1,4 +1,4 @@
-importScripts('browser-polyfill.js');
+importScripts('umd-polyfill.js');
 
 onmessage = function(ev) {
   setTimeout(() => {

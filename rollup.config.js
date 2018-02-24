@@ -10,12 +10,20 @@ const plugins = [
 export default [{
   input: 'src/polyfill.js',
   output: {
-    name: 'AbortController-polyfill',
-    file: 'dist/browser-polyfill.js',
+    file: 'dist/umd-polyfill.js',
     format: 'umd'
   },
   plugins
-}, {
+},
+{
+  input: 'src/ponyfill.js',
+  output: {
+    file: 'dist/cjs-ponyfill.js',
+    format: 'cjs'
+  },
+  plugins
+},
+{
   input: 'src/abortcontroller.js',
   output: {
     file: 'dist/abortcontroller.js',

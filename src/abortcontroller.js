@@ -1,5 +1,3 @@
-export {default as abortableFetch} from './abortableFetch';
-
 class Emitter {
   constructor() {
     this.listeners = {};
