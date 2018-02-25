@@ -70,6 +70,15 @@ This can be worked around by (temporarily, details [here](https://github.com/mo/
   const AbortController = window.AbortController;
 ```
 
+## Using the AbortController/AbortSignal without patching fetch
+
+If you just want to polyfill AbortController/AbortSignal without patching fetch
+you can use:
+
+```js
+import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only'
+```
+
 # Using it on Node.js
 
 You can either import it as a [ponyfill](https://ponyfill.com/) without modifying globals:
