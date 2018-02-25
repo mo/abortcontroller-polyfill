@@ -31,13 +31,9 @@ $ npm install --save abortcontroller-polyfill
 If you're using webpack or similar, you then import it early in your client entrypoint .js file using
 
 ```js
-import 'abortcontroller-polyfill'
-```
-
-or
-
-```js
-require('abortcontroller-polyfill')
+import 'abortcontroller-polyfill/dist/polyfill-patch-fetch'
+// or:
+require('abortcontroller-polyfill/dist/polyfill-patch-fetch')
 ```
 
 ## Using it on browsers without fetch
@@ -89,7 +85,7 @@ const { fetch } = abortableFetch(require('node-fetch'));
 or if you're lazy
 ```js
 global.fetch = require('node-fetch');
-require('abortcontroller-polyfill');
+require('abortcontroller-polyfill/dist/polyfill-patch-fetch');
 ```
 
 If you also need a ```Request``` class with support for aborting you can do:

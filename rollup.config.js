@@ -16,6 +16,22 @@ export default [{
   plugins
 },
 {
+  input: 'src/polyfill.js',
+  output: {
+    file: 'dist/polyfill-patch-fetch.js',
+    format: 'umd'
+  },
+  plugins
+},
+{
+  input: 'src/abortcontroller-polyfill.js',
+  output: {
+    file: 'dist/abortcontroller-polyfill-only.js',
+    format: 'umd'
+  },
+  plugins
+},
+{
   input: 'src/ponyfill.js',
   output: {
     file: 'dist/cjs-ponyfill.js',
