@@ -10,13 +10,15 @@ instead of ```.then()```.
 ```js
 const controller = new AbortController();
 const signal = controller.signal;
-fetch('/some/url', {signal}).then(res => res.json()).then(data => {
-  // do something with "data"
-}).catch(err => {
-  if (err.name == 'AbortError') {
-    return;
-  }
-});
+fetch('/some/url', {signal})
+  .then(res => res.json())
+  .then(data => {
+    // do something with "data"
+  }).catch(err => {
+    if (err.name == 'AbortError') {
+      return;
+    }
+  });
 // controller.abort(); // can be called at any time
 ```
 
