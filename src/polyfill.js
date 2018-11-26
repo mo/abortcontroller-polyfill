@@ -4,7 +4,10 @@ import abortableFetch from './abortableFetch';
 (function(self) {
   'use strict';
 
-  if (self.AbortController) {
+  if (
+    self.AbortController &&
+    (!self.navigator || !self.navigator.userAgent.match(/version\/[\d|.]+ safari\/[\d|.]+$/i))
+  ) {
     return;
   }
 
