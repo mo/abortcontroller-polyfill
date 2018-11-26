@@ -1,10 +1,11 @@
 import AbortController, {AbortSignal} from './abortcontroller';
 import abortableFetch from './abortableFetch';
+import {nativeAbortControllerIsBroken} from './utils';
 
 (function(self) {
   'use strict';
 
-  if (self.AbortController) {
+  if (self.AbortController && !nativeAbortControllerIsBroken(self)) {
     return;
   }
 
