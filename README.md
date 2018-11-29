@@ -128,6 +128,7 @@ See also Node.js examples [here](https://github.com/mo/abortcontroller-polyfill-
 * [Rasmus Jacobsen](https://github.com/rmja)
 * [João Vieira](https://github.com/joaovieira)
 * [Cyril Auburtin](https://github.com/caub)
+* [Leonardo Apiwan](https://github.com/homer0)
 
 # License
 
