@@ -1,12 +1,10 @@
 import AbortController, {AbortSignal} from './abortcontroller';
+import {nativeAbortControllerIsBroken} from './utils';
 
 (function(self) {
   'use strict';
 
-  if (
-    self.AbortController &&
-    (!self.navigator || !self.navigator.userAgent.match(/version\/[\d|.]+ safari\/[\d|.]+$/i))
-  ) {
+  if (self.AbortController && !nativeAbortControllerIsBroken(self)) {
     return;
   }
 
