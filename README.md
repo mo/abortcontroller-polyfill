@@ -41,8 +41,8 @@ require('abortcontroller-polyfill/dist/polyfill-patch-fetch')
 ## Using it on browsers without fetch
 
 If you need to support browsers where fetch is not available at all (for example
-Internet Explorer 11), you first need to install a fetch polyfill and then import
-the ```abortcontroller-polyfill``` afterwards.
+Internet Explorer 11), you first need to install a fetch polyfill and then
+import the ```abortcontroller-polyfill``` afterwards.
 
 The [unfetch](https://www.npmjs.com/package/unfetch) npm package offers a minimal ```fetch()```
 implementation (though it does not offer for example a ```Request``` class). If you need a polyfill that
@@ -120,6 +120,22 @@ fetch(Request("http://api.github.com", {signal}))
 ```
 
 See also Node.js examples [here](https://github.com/mo/abortcontroller-polyfill-examples/tree/master/node)
+
+# Using it on Internet Explorer 11 (MSIE11)
+
+The ```abortcontroller-polyfill``` works on Internet Explorer 11. However, to use it you must first
+install separate polyfills for promises and for ```fetch()```. For the promise polyfill, you can
+use the ```promise-polyfill``` package from npm, and for ```fetch()``` you can use either the ```whatwg-fetch``` npm package (complete fetch implementation) or the ```unfetch``` npm package (not a complete polyfill but it's only 500 bytes large and covers a lot of the basic use cases).
+
+If you choose ```unfetch```, the imports should be done in this order for example:
+
+```js
+import 'promise-polyfill/src/polyfill';
+import 'unfetch/polyfill';
+import 'abortcontroller-polyfill';
+```
+
+See example code [here](https://github.com/mo/abortcontroller-polyfill-examples/tree/master/create-react-app-msie11).
 
 # Contributors
 * [Martin Olsson](https://github.com/mo)
