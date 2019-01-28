@@ -38,9 +38,9 @@ class Emitter {
 export class AbortSignal extends Emitter {
   constructor() {
     super();
-
-    this.aborted = false;
-    this.onabort = null;
+    // initialize properties as writable, confgurable, not enumerable (false by default)
+    Object.defineProperty(this, 'aborted', { value: false, writable: true, configurable: true });
+    Object.defineProperty(this, 'onabort', { value: null, writable: true, configurable: true });
   }
   toString() {
     return '[object AbortSignal]';
@@ -59,7 +59,8 @@ export class AbortSignal extends Emitter {
 
 export class AbortController {
   constructor() {
-    this.signal = new AbortSignal();
+    // initialize properties as writable, confgurable, not enumerable (false by default)
+    Object.defineProperty(this, 'signal', { value: new AbortSignal(), writable: true, configurable: true });
   }
   abort() {
     let event;

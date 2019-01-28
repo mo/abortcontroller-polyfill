@@ -27,7 +27,7 @@ You can read about the [AbortController](https://dom.spec.whatwg.org/#aborting-o
 # How to use
 
 ```shell
-$ npm install --save abortcontroller-polyfill
+$ npm install abortcontroller-polyfill
 ```
 
 If you're using webpack or similar, you then import it early in your client entrypoint .js file using
