@@ -9,8 +9,19 @@ import {nativeAbortControllerIsBroken} from './utils';
     return;
   }
 
-  self.AbortController = AbortController;
-  self.AbortSignal = AbortSignal;
+  Object.defineProperty(self, 'AbortController', {
+    writable: true,
+    enumerable: false,
+    configurable: true,
+    value: AbortController
+  });
+
+  Object.defineProperty(self, 'AbortSignal', {
+    writable: true,
+    enumerable: false,
+    configurable: true,
+    value: AbortSignal
+  });
 
   if (!self.fetch) {
     console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
