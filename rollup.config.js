@@ -1,10 +1,19 @@
 import babel from 'rollup-plugin-babel';
+import resolve from 'rollup-plugin-node-resolve';
+import commonJS from 'rollup-plugin-commonjs';
 
 const plugins = [
   babel({
     exclude: 'node_modules/**',
-    plugins: ['external-helpers']
-  })
+    plugins: ['external-helpers'],
+  }),
+  resolve({
+    jsnext: true,
+    main: true
+  }),
+  commonJS({
+    include: 'node_modules/**',
+  }),
 ];
 
 export default [{
