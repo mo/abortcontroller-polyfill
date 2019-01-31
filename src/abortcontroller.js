@@ -1,6 +1,6 @@
 class Emitter {
   constructor() {
-    this.listeners = {};
+    Object.defineProperty(this, 'listeners', { value: {}, writable: true, configurable: true });
   }
   addEventListener(type, callback) {
     if (!(type in this.listeners)) {
@@ -38,7 +38,8 @@ class Emitter {
 export class AbortSignal extends Emitter {
   constructor() {
     super();
-    // initialize properties as writable, configurable, non-enumerable
+    // Compared to assignment, Object.defineProperty makes properties non-enumerable by default and
+    // we want Object.keys(new AbortController().signal) to be [] for compat with the native impl
     Object.defineProperty(this, 'aborted', { value: false, writable: true, configurable: true });
     Object.defineProperty(this, 'onabort', { value: null, writable: true, configurable: true });
   }
@@ -59,7 +60,8 @@ export class AbortSignal extends Emitter {
 
 export class AbortController {
   constructor() {
-    // initialize properties as writable, confgurable, non-enumerable
+    // Compared to assignment, Object.defineProperty makes properties non-enumerable by default and
+    // we want Object.keys(new AbortController()) to be [] for compat with the native impl
     Object.defineProperty(this, 'signal', { value: new AbortSignal(), writable: true, configurable: true });
   }
   abort() {
