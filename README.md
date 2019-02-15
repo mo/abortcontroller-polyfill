@@ -146,6 +146,7 @@ See example code [here](https://github.com/mo/abortcontroller-polyfill-examples/
 * [Cyril Auburtin](https://github.com/caub)
 * [Leonardo Apiwan](https://github.com/homer0)
 * [Jake Champion](https://github.com/JakeChampion)
+* [Sai Srinivasan](https://github.com/SairamSrinivasan)
 
 # License
 
