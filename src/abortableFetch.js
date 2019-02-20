@@ -1,5 +1,4 @@
-import {default as SyntheticAbortController} from './abortcontroller';
-
+import {polyfillNeeded} from './utils.js';
 /**
  * Note: the "fetch.Request" default value is available for fetch imported from
  * the "node-fetch" package and not in browsers. This is OK since browsers
@@ -20,24 +19,26 @@ export default function abortableFetchDecorator(patchTargets) {
   const {
     fetch,
     Request: NativeRequest = fetch.Request,
-    AbortController: NativeAbortController = SyntheticAbortController
+    AbortController: NativeAbortController,
   } = patchTargets;
+
+  if (!polyfillNeeded({fetch, Request: NativeRequest, AbortController: NativeAbortController})) {
+    return {fetch, Request};
+  }
 
   let Request = NativeRequest;
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without
   // defining window.Request, and this polyfill need to work on top of unfetch
-  // so the below feature detection is wrapped in if (Request)
-  if (Request) {
-    // Do feature detecting
-    const controller = new NativeAbortController();
-    const signal = controller.signal;
-    const request = new Request('/', { signal });
-
-    // Browser already supports abortable fetch (like FF v57 and fetch-polyfill)
-    if (request.signal) {
-      return {fetch, Request};
-    }
-
+  // hence we only patch it if it's available. Also we don't patch it if signal
+  // is already available on the Request prototype because in this case support
+  // is present and the patching below can cause a crash since it assigns to
+  // request.signal which is technically a read-only property. This latter error
+  // happens when you run the main5.js node-fetch example in the repo
+  // "abortcontroller-polyfill-examples". The exact error is:
+  //   request.signal = init.signal;
+  //   ^
+  // TypeError: Cannot set property signal of #<Request> which has only a getter
+  if (Request && !Request.prototype.hasOwnProperty('signal')) {
     Request = function Request(input, init) {
       let request = new NativeRequest(input, init);
       if (init && init.signal) {

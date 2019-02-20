@@ -1,10 +1,10 @@
 import AbortController, {AbortSignal} from './abortcontroller';
-import {nativeAbortControllerIsBroken} from './utils';
+import {polyfillNeeded} from './utils';
 
 (function(self) {
   'use strict';
 
-  if (self.AbortController && !nativeAbortControllerIsBroken(self)) {
+  if (!polyfillNeeded(self)) {
     return;
   }
 

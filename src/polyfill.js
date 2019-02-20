@@ -1,13 +1,22 @@
 import AbortController, {AbortSignal} from './abortcontroller';
 import abortableFetch from './abortableFetch';
-import {nativeAbortControllerIsBroken} from './utils';
+import {polyfillNeeded} from './utils';
 
 (function(self) {
   'use strict';
 
-  if (self.AbortController && !nativeAbortControllerIsBroken(self)) {
+  if (!polyfillNeeded(self)) {
     return;
   }
+
+  if (!self.fetch) {
+    console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
+    return;
+  }
+
+  const {fetch, Request} = abortableFetch(self);
+  self.fetch = fetch;
+  self.Request = Request;
 
   Object.defineProperty(self, 'AbortController', {
     writable: true,
@@ -22,14 +31,5 @@ import {nativeAbortControllerIsBroken} from './utils';
     configurable: true,
     value: AbortSignal
   });
-
-  if (!self.fetch) {
-    console.warn('fetch() is not available, cannot install abortcontroller-polyfill');
-    return;
-  }
-
-  const {fetch, Request} = abortableFetch(self);
-  self.fetch = fetch;
-  self.Request = Request;
 
 })(typeof self !== 'undefined' ? self : global);
