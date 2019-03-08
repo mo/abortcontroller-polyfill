@@ -67,9 +67,15 @@ export class AbortController {
       event = new Event('abort');
     } catch (e) {
       if (typeof document !== 'undefined') {
-        // For Internet Explorer 11:
-        event = document.createEvent('Event');
-        event.initEvent('abort', false, false);
+        if (!document.createEvent) {
+          // For Internet Explorer 8:
+          event = document.createEventObject();
+          event.type = 'abort';
+        } else {
+          // For Internet Explorer 11:
+          event = document.createEvent('Event');
+          event.initEvent('abort', false, false);
+        }
       } else {
         // Fallback where document isn't available:
         event = {
