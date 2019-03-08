@@ -137,6 +137,15 @@ import 'abortcontroller-polyfill';
 
 See example code [here](https://github.com/mo/abortcontroller-polyfill-examples/tree/master/create-react-app-msie11).
 
+# Using it on Internet Explorer 8 (MSIE8)
+
+The ```abortcontroller-polyfill``` works on Internet Explorer 8. However, since ```github-fetch```
+only supports IE 10+ you need to use the ```fetch-ie8``` npm package instead and also note that IE 8 only
+implements ES 3 so you need to use the ```es5-shim``` package (or similar). Finally, just like with
+IE 11 you also need to polyfill promises. One caveat is that CORS requests will not work out of the box on IE 8.
+
+Here is a basic example of [abortable fetch running in IE 8](https://github.com/mo/abortcontroller-polyfill-examples/tree/master/plain-javascript-fetch-ie8).
+
 # Contributors
 * [Martin Olsson](https://github.com/mo)
 * [Jimmy Wärting](https://github.com/jimmywarting)
