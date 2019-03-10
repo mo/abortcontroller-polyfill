@@ -1,4 +1,28 @@
+const seleniumVersions = {
+  // check for more recent versions of selenium here:
+  // https://selenium-release.storage.googleapis.com/index.html
+  version: '3.141.5',
+  baseURL: 'https://selenium-release.storage.googleapis.com',
+  drivers: {
+    chrome: {
+      // check for more recent versions of chrome driver here:
+      // https://chromedriver.storage.googleapis.com/index.html
+      version: '2.43',
+      arch: process.arch,
+      baseURL: 'https://chromedriver.storage.googleapis.com'
+    },
+    firefox: {
+      // check for more recent versions of geckodriver here:
+      // https://github.com/mozilla/geckodriver/releases/
+      version: '0.23.0',
+      arch: process.arch,
+      baseURL: 'https://github.com/mozilla/geckodriver/releases/download'
+    },
+  },
+};
+
 exports.config = {
+  runner: 'local',
   specs: [
     './tests/**/*.test.js'
   ],
@@ -9,51 +33,60 @@ exports.config = {
   sync: true,
   // Level of logging verbosity: silent | verbose | command | data | result | error
   logLevel: process.env.E2E_LOG_LEVEL || 'error',
-  coloredLogs: true,
   bail: 0,
   baseUrl: 'http://127.0.0.1:3000',
-  waitforTimeout: 10000,
+  waitforTimeout: 5000,
   connectionRetryTimeout: 90000,
   connectionRetryCount: 3,
+
   services: ['selenium-standalone'],
+  seleniumArgs: seleniumVersions,
+  seleniumInstallArgs: seleniumVersions,
+
   framework: 'jasmine',
   reporters: ['spec'],
   jasmineNodeOpts: {
-    defaultTimeoutInterval: 300000,
-    expectationResultHandler: function(passed, assertion) {
-    }
+    defaultTimeoutInterval: 30000
   },
   before: function (capabilities, specs) {
     // eslint-disable-next-line no-undef
-    browser.timeouts('implicit', 30000);
+    browser.setTimeout({ 'implicit': 5000 });
     // eslint-disable-next-line no-undef
-    browser.timeouts('script', 20000);
+    browser.setTimeout({ 'script': 5000 });
   },
 };
 
-if (process.env.SELENIUM_BROWSER) {
-  exports.config.capabilities = [{
-    browserName: process.env.SELENIUM_BROWSER
-  }];
-} else {
-  exports.config.capabilities = [
-    {
-      browserName: 'chrome'
-    },
-    {
-      browserName: 'firefox'
+exports.config.capabilities = [
+  {
+    browserName: 'chrome',
+    'goog:chromeOptions': {
     }
-  ];
+  },
+  {
+    browserName: 'firefox',
+    'moz:firefoxOptions': {
+    }
+  }
+];
+
+if (process.env.SELENIUM_BROWSER) {
+  exports.config.capabilities = exports.config.capabilities.filter(conf => conf.browserName === process.env.SELENIUM_BROWSER);
 }
 
 if (process.env.E2E_HEADLESS) {
-  if (!['chrome', ''].includes(process.env.SELENIUM_BROWSER)) {
-    throw 'ERROR: Headless mode is only compatiable with chrome.';
-  }
   const chromeCapability = exports.config.capabilities.find(conf => conf.browserName === 'chrome');
-  chromeCapability.chromeOptions = {
-    args: ['--headless', '--disable-gpu', '--window-size=1280,800']
-  };
+  if (chromeCapability) {
+    chromeCapability['goog:chromeOptions'] = Object.assign(chromeCapability['goog:chromeOptions'], {
+      args: ['--headless', '--disable-gpu', '--window-size=1280,800']
+    });
+  }
+
+  const firefoxCapability = exports.config.capabilities.find(conf => conf.browserName === 'firefox');
+  if (firefoxCapability) {
+    firefoxCapability['moz:firefoxOptions'] = Object.assign(firefoxCapability['moz:firefoxOptions'], {
+      args: ['-headless', '--window-size=1280,800']
+    });
+  }
 }
 
 if (process.env.E2E_WDIO_EXEC_ARGV) {

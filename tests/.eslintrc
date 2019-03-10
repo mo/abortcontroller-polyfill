@@ -5,10 +5,14 @@
   "globals": {
     "describe": true,
     "it": true,
+    "fit": true,
     "expect": true,
     "browser": true,
     "$": true,
     "$$": true,
-    "fail": true
+    "fail": true,
+    "beforeAll": true,
+    "afterAll": true,
+    "afterEach": true
   }
 }

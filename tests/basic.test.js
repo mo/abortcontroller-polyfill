@@ -3,320 +3,316 @@ const path = require('path');
 const http = require('http');
 const fs = require('fs');
 
-const TESTPAGE_URL = 'file://' + path.resolve(__dirname, 'testpage.html').replace('\\', '/');
+const TESTPAGE_URL_BASE = 'file://' + path.resolve(__dirname, 'testpage.html').replace('\\', '/');
 
-describe('basic tests', () => {
+const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
+  describe(testSuiteTitle, () => {
 
-  it('AbortSignal constructor', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      const signal = new AbortSignal();
-      if (signal.aborted !== false) {
-        done('FAIL');
-      }
-      if (signal.onabort !== null) {
-        done('FAIL');
-      }
-      done('PASS');
+    it('check version', () => {
+      browser.url(TESTPAGE_URL);
+      const browserData = browser.executeAsync(async (done) => {
+        done(window.DetectedBrowserData);
+      });
+      console.log('Tests running on: ' + JSON.stringify(browserData, null, 2));
     });
-    expect(res.value).toBe('PASS');
-  });
 
-  it('Request is patched', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      const controller = new AbortController();
-      const signal = controller.signal;
-      let request = new Request('/', {signal});
-      if (request.signal !== signal) {
-        done('FAIL');
-      }
-      if (!Request.prototype.isPrototypeOf(request)) {
-        done('FAIL');
-      }
-      done('PASS');
-    });
-    expect(res.value).toBe('PASS');
-  });
-
-  it('abort during fetch', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done({name: 'fail'});
-      }, 2000);
-      const controller = new AbortController();
-      const signal = controller.signal;
-      setTimeout(() => {
-        controller.abort();
-      }, 500);
-      try {
-        await fetch('http://httpstat.us/200?sleep=1000', {signal});
-      } catch (err) {
-        done(err);
-      }
-    });
-    const err = res.value;
-    expect(err.name).toBe('AbortError');
-    expect(getJSErrors().length).toBe(0);
-  });
-
-  it('abort during fetch when Request has signal', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done({name: 'fail'});
-      }, 2000);
-      const controller = new AbortController();
-      const signal = controller.signal;
-      setTimeout(() => {
-        controller.abort();
-      }, 500);
-      try {
-        let request = new Request('http://httpstat.us/200?sleep=1000', {signal});
-        await fetch(request);
-      } catch (err) {
-        done(err);
-      }
-    });
-    const err = res.value;
-    expect(err.name).toBe('AbortError');
-    expect(getJSErrors().length).toBe(0);
-  });
-
-  it('abort before fetch started', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done({name: 'fail'});
-      }, 2000);
-      const controller = new AbortController();
-      controller.abort();
-      const signal = controller.signal;
-      try {
-        await fetch('http://httpstat.us/200?sleep=1000', {signal});
-      } catch (err) {
-        done(err);
-      }
-    });
-    const err = res.value;
-    expect(err.name).toBe('AbortError');
-    expect(getJSErrors().length).toBe(0);
-  });
-
-  it('abort before fetch started, verify no HTTP request is made', () => {
-    const server = http.createServer((req, res) => {
-      fail('fetch() made an HTTP request despite pre-aborted signal');
-    }).listen(0);
-    const boundListenPort = server.address().port;
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (boundListenPort, done) => {
-      setTimeout(() => {
-        done({name: 'fail'});
-      }, 2000);
-      const controller = new AbortController();
-      controller.abort();
-      const signal = controller.signal;
-      try {
-        await fetch(`http://127.0.0.1:${boundListenPort}`, {signal});
-        done({name: 'fail'});
-      } catch (err) {
-        done(err);
-      }
-    }, boundListenPort);
-    const err = res.value;
-    expect(err.name).toBe('AbortError');
-    expect(getJSErrors().length).toBe(0);
-    server.close();
-  });
-
-  it('fetch without aborting', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done({name: 'fail'});
-      }, 2000);
-      const controller = new AbortController();
-      const signal = controller.signal;
-      try {
-        await fetch('http://httpstat.us/200?sleep=50', {signal});
-        done('PASS');
-      } catch (err) {
-        done(err);
-      }
-    });
-    expect(res.value).toBe('PASS');
-    expect(getJSErrors().length).toBe(0);
-  });
-
-  it('fetch without signal set', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done({name: 'fail'});
-      }, 2000);
-      try {
-        await fetch('http://httpstat.us/200?sleep=50');
-        done('PASS');
-      } catch (err) {
-        done(err);
-      }
-    });
-    expect(res.value).toBe('PASS');
-    expect(getJSErrors().length).toBe(0);
-  });
-
-  it('event listener fires "abort" event', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done({name: 'fail'});
-      }, 2000);
-      const controller = new AbortController();
-      controller.signal.addEventListener('abort', () => {
+    it('Request object has .signal', () => {
+      browser.url(TESTPAGE_URL);
+      const result = browser.executeAsync(async (done) => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const request = new Request('/', {signal});
+        if (!request.signal) {
+          done('FAIL: missing request.signal');
+        }
+        if (!Request.prototype.isPrototypeOf(request)) {
+          done('FAIL: wrong prototype');
+        }
         done('PASS');
       });
-      controller.abort();
+      expect(result).toBe('PASS');
     });
-    expect(res.value).toBe('PASS');
-    expect(getJSErrors().length).toBe(0);
-  });
 
-  it('signal.aborted is true after abort', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done('FAIL');
-      }, 2000);
-      const controller = new AbortController();
-      controller.signal.addEventListener('abort', () => {
-        if (controller.signal.aborted === true) {
+    it('abort during fetch', () => {
+      browser.url(TESTPAGE_URL);
+      const err = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done({name: 'fail'});
+        }, 2000);
+        const controller = new AbortController();
+        const signal = controller.signal;
+        setTimeout(() => {
+          controller.abort();
+        }, 500);
+        try {
+          await fetch('http://httpstat.us/200?sleep=1000', {signal});
+        } catch (err) {
+          done(err);
+        }
+      });
+      expect(err.name).toBe('AbortError');
+    });
+
+    it('abort during fetch when Request has signal', () => {
+      browser.url(TESTPAGE_URL);
+      const err = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done({name: 'fail'});
+        }, 2000);
+        const controller = new AbortController();
+        const signal = controller.signal;
+        setTimeout(() => {
+          controller.abort();
+        }, 500);
+        try {
+          let request = new Request('http://httpstat.us/200?sleep=1000', {signal});
+          await fetch(request);
+        } catch (err) {
+          done(err);
+        }
+      });
+      expect(err.name).toBe('AbortError');
+    });
+
+    it('abort before fetch started', () => {
+      browser.url(TESTPAGE_URL);
+      const err = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done({name: 'fail'});
+        }, 2000);
+        const controller = new AbortController();
+        controller.abort();
+        const signal = controller.signal;
+        try {
+          await fetch('http://httpstat.us/200?sleep=1000', {signal});
+        } catch (err) {
+          done(err);
+        }
+      });
+      expect(err.name).toBe('AbortError');
+    });
+
+    it('abort before fetch started, verify no HTTP request is made', () => {
+      const server = http.createServer((req, res) => {
+        fail('fetch() made an HTTP request despite pre-aborted signal');
+      }).listen(0);
+      const boundListenPort = server.address().port;
+      browser.url(TESTPAGE_URL);
+      const err = browser.executeAsync(async (boundListenPort, done) => {
+        setTimeout(() => {
+          done({name: 'fail'});
+        }, 2000);
+        const controller = new AbortController();
+        controller.abort();
+        const signal = controller.signal;
+        try {
+          await fetch(`http://127.0.0.1:${boundListenPort}`, {signal});
+          done({name: 'fail'});
+        } catch (err) {
+          done(err);
+        }
+      }, boundListenPort);
+      expect(err.name).toBe('AbortError');
+      server.close();
+    });
+
+    it('fetch without aborting', () => {
+      browser.url(TESTPAGE_URL);
+      const result = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done({name: 'fail'});
+        }, 2000);
+        const controller = new AbortController();
+        const signal = controller.signal;
+        try {
+          await fetch('http://httpstat.us/200?sleep=50', {signal});
           done('PASS');
-        } else {
+        } catch (err) {
+          done(err);
+        }
+      });
+      expect(result).toBe('PASS');
+    });
+
+    it('fetch without signal set', () => {
+      browser.url(TESTPAGE_URL);
+      const result = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done({name: 'fail'});
+        }, 2000);
+        try {
+          await fetch('http://httpstat.us/200?sleep=50');
+          done('PASS');
+        } catch (err) {
+          done(err);
+        }
+      });
+      expect(result).toBe('PASS');
+    });
+
+    it('event listener fires "abort" event', () => {
+      browser.url(TESTPAGE_URL);
+      const result = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done({name: 'fail'});
+        }, 2000);
+        const controller = new AbortController();
+        controller.signal.addEventListener('abort', () => {
+          done('PASS');
+        });
+        controller.abort();
+      });
+      expect(result).toBe('PASS');
+    });
+
+    it('signal.aborted is true after abort', () => {
+      browser.url(TESTPAGE_URL);
+      const result = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done('FAIL');
+        }, 2000);
+        const controller = new AbortController();
+        controller.signal.addEventListener('abort', () => {
+          if (controller.signal.aborted === true) {
+            done('PASS');
+          } else {
+            done('FAIL');
+          }
+        });
+        controller.abort();
+        if (controller.signal.aborted !== true) {
           done('FAIL');
         }
       });
-      controller.abort();
-      if (controller.signal.aborted !== true) {
-        done('FAIL');
-      }
+      expect(result).toBe('PASS');
     });
-    expect(res.value).toBe('PASS');
-    expect(getJSErrors().length).toBe(0);
+
+    it('event listener doesn\'t fire "abort" event after removeEventListener', () => {
+      browser.url(TESTPAGE_URL);
+      const result = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done('PASS');
+        }, 200);
+        const controller = new AbortController();
+        const handlerFunc = () => {
+          done('FAIL');
+        };
+        controller.signal.addEventListener('abort', handlerFunc);
+        controller.signal.removeEventListener('abort', handlerFunc);
+        controller.abort();
+      });
+      expect(result).toBe('PASS');
+    });
+
+    it('signal.onabort called on abort', () => {
+      browser.url(TESTPAGE_URL);
+      const result = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done('FAIL');
+        }, 200);
+        const controller = new AbortController();
+        controller.signal.onabort = () => {
+          done('PASS');
+        };
+        controller.abort();
+      });
+      expect(result).toBe('PASS');
+    });
+
+    it('fetch from web worker works', () => {
+      // Need to load from webserver because worker because security policy
+      // prevents file:// pages from "loading arbitrary .js files" as workers.
+      const server = http.createServer((req, res) => {
+        if (req.url === '/') {
+          // No need to load polyfill in main JS context, we're only gonna run it
+          // inside the worker only
+          res.end('');
+        } else if (req.url === '/umd-polyfill.js') {
+          res.setHeader('Content-Type', 'text/javascript');
+          res.end(fs.readFileSync(path.join(__dirname, '../dist/umd-polyfill.js')));
+        } else if (req.url === '/web-worker.js') {
+          res.setHeader('Content-Type', 'text/javascript');
+          res.end(fs.readFileSync(path.join(__dirname, 'web-worker.js')));
+        }
+      }).listen(0);
+      const boundListenPort = server.address().port;
+
+      browser.url(`http://127.0.0.1:${boundListenPort}`);
+      const result = browser.executeAsync(async (done) => {
+        setTimeout(() => {
+          done('FAIL');
+        }, 2000);
+        const worker = new Worker('web-worker.js');
+        worker.postMessage('run-test');
+        worker.onmessage = (ev) => {
+          done(ev.data);
+        };
+      });
+      expect(result).toBe('PASS');
+      server.close();
+    });
+
+    it('toString() output', () => {
+      browser.url(TESTPAGE_URL);
+
+      let result;
+
+      result = browser.executeAsync((done) => {
+        done(new AbortController().toString());
+      });
+      expect(result).toBe('[object AbortController]');
+
+      result = browser.executeAsync((done) => {
+        done(Object.prototype.toString.call(new AbortController()));
+      });
+      expect(result).toBe('[object AbortController]');
+
+      result = browser.executeAsync((done) => {
+        done(new AbortController().signal.toString());
+      });
+      expect(result).toBe('[object AbortSignal]');
+    });
   });
+};
 
-  it('event listener doesn\'t fire "abort" event after removeEventListener', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done('PASS');
-      }, 200);
-      const controller = new AbortController();
-      const handlerFunc = () => {
-        done('FAIL');
-      };
-      controller.signal.addEventListener('abort', handlerFunc);
-      controller.signal.removeEventListener('abort', handlerFunc);
-      controller.abort();
-    });
-    expect(res.value).toBe('PASS');
-    expect(getJSErrors().length).toBe(0);
-  });
+// Run all testcases with abortcontroller-polyfill force installed (even browser has native AbortController)
+runBasicTests(
+  'basic tests with abortcontroller-polyfill force installed',
+  `${TESTPAGE_URL_BASE}?__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL=1`
+);
 
-  it('signal.onabort called on abort', () => {
-    browser.url(TESTPAGE_URL);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done('FAIL');
-      }, 200);
-      const controller = new AbortController();
-      controller.signal.onabort = () => {
-        done('PASS');
-      };
-      controller.abort();
-    });
-    expect(res.value).toBe('PASS');
-    expect(getJSErrors().length).toBe(0);
-  });
+// Run all testcases again with normal installation logic for abortcontroller-polyfill (on modern browsers
+// this will run the testcases against the native AbortController implementation, and on older browsers
+// this will verify that the polyfill chooses to install itself when it is needed)
+runBasicTests(
+  'basic tests again with normal installation logic for abortcontroller-polyfill',
+  TESTPAGE_URL_BASE
+);
 
-  it('fetch from web worker works', () => {
-    // Need to load from webserver because worker because security policy
-    // prevents file:// pages from "loading arbitrary .js files" as workers.
-    const server = http.createServer((req, res) => {
-      if (req.url === '/') {
-        // No need to load polyfill in main JS context, we're only gonna run it
-        // inside the worker only
-        res.end('');
-      } else if (req.url === '/umd-polyfill.js') {
-        res.end(fs.readFileSync(path.join(__dirname, '../dist/umd-polyfill.js')));
-      } else if (req.url === '/web-worker.js') {
-        res.end(fs.readFileSync(path.join(__dirname, 'web-worker.js')));
-      }
-    }).listen(0);
-    const boundListenPort = server.address().port;
-
-    browser.url(`http://127.0.0.1:${boundListenPort}`);
-    const res = browser.executeAsync(async (done) => {
-      setTimeout(() => {
-        done('FAIL');
-      }, 2000);
-      const worker = new Worker('web-worker.js');
-      worker.postMessage('run-test');
-      worker.onmessage = (ev) => {
-        const result = ev.data;
-        done(result);
-      };
-    });
-    expect(res.value).toBe('PASS');
-    expect(getJSErrors().length).toBe(0);
-    server.close();
-  });
-
-  it('toString() output', () => {
-    browser.url(TESTPAGE_URL);
-
-    let res;
-
-    res = browser.executeAsync((done) => {
-      done(new AbortController().toString());
-    });
-    expect(res.value).toBe('[object AbortController]');
-
-    res = browser.executeAsync((done) => {
-      done(Object.prototype.toString.call(new AbortController()));
-    });
-    expect(res.value).toBe('[object AbortController]');
-
-    res = browser.executeAsync((done) => {
-      done(new AbortController().signal.toString());
-    });
-    expect(res.value).toBe('[object AbortSignal]');
-
-    res = browser.executeAsync((done) => {
-      done(new AbortSignal().toString());
-    });
-    expect(res.value).toBe('[object AbortSignal]');
-
-    res = browser.executeAsync((done) => {
-      done(Object.prototype.toString.call(new AbortSignal()));
-    });
-    expect(res.value).toBe('[object AbortSignal]');
-  });
+afterEach(() => {
+  checkJSErrors();
 });
 
-function getJSErrors() {
-  if (browser.desiredCapabilities.browserName === 'firefox') {
-    console.log('NOTE: cannot get browser log in firefox so cannot verify "no JS errors"');
+let hasPrintErrorOnceAlready = false;
+function checkJSErrors() {
+  let browserLog = [];
+  if (browser.capabilities.browserName === 'firefox') {
+    if (!hasPrintErrorOnceAlready) {
+      console.log('NOTE: cannot get browser log in firefox so cannot verify that "no JS errors" fired during testing');
+      hasPrintErrorOnceAlready = true;
+    }
   } else {
-    const allLogEntries = browser.log('browser').value;
-    const jsErrors = allLogEntries.filter(logEntry => logEntry.level === 'SEVERE');
-    allLogEntries.forEach(error => {
-      if (error.level === 'SEVERE') {
-        console.log(chalk.red(`[${error.level}] ${error.message}`));
-      } else {
-        console.log(`[${error.level}] ${error.message}`);
-      }
-    });
-    return jsErrors;
+    browser.call(() => new Promise(async resolve => {
+      browserLog = await browser.getLogs('browser');
+      browserLog.forEach(error => {
+        if (error.level === 'SEVERE') {
+          console.log(chalk.red(`[${error.level}] ${error.message}`));
+        } else {
+          console.log(`[${error.level}] ${error.message}`);
+        }
+      });
+      resolve();
+    }));
   }
+  return browserLog;
 }

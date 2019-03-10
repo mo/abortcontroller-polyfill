@@ -1,1 +1,41 @@
+<script>
+function getUrlParams()
+{
+    const questionMarkIdx = window.location.href.indexOf('?');
+    if (questionMarkIdx == -1) {
+        return {};
+    }
+    const params = {};
+    const keyvals = window.location.href.slice(questionMarkIdx + 1).split('&');
+    for(var i = 0; i < keyvals.length; ++i)
+    {
+        const keyval = keyvals[i].split('=');
+        if (params[keyval[0]] == undefined)
+            params[keyval[0]] = keyval[1];
+        else if (!params[keyval[0]].push)
+            params[keyval[0]] = [params[keyval[0]], keyval[1]];
+        else
+            params[keyval[0]].push(keyval[1]);
+    }
+    return params;
+}
+
+if (getUrlParams().__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL) {
+    window.__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL = true;
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.innerHTML += '<pre>(running with abortcontroller-polyfill forcibly installed)</pre>';
+    });
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.innerHTML += '<pre>(will install abortcontroller-polyfill only if necessary in this particular browser)</pre>'
+    });
+}
+</script>
+<script src="https://unpkg.com/browser-detect@0.2.28/dist/browser-detect.umd.js"></script>
+<script>
+window.DetectedBrowserData = browserDetect();
+</script>
+<body>
+This is the test page.
+</body>
 <script src="../dist/umd-polyfill.js"></script>
