@@ -20,9 +20,10 @@ export default function abortableFetchDecorator(patchTargets) {
     fetch,
     Request: NativeRequest = fetch.Request,
     AbortController: NativeAbortController,
+    __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL = false,
   } = patchTargets;
 
-  if (!polyfillNeeded({fetch, Request: NativeRequest, AbortController: NativeAbortController})) {
+  if (!polyfillNeeded({fetch, Request: NativeRequest, AbortController: NativeAbortController, __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL})) {
     return {fetch, Request};
   }
 
@@ -38,11 +39,27 @@ export default function abortableFetchDecorator(patchTargets) {
   //   request.signal = init.signal;
   //   ^
   // TypeError: Cannot set property signal of #<Request> which has only a getter
-  if (Request && !Request.prototype.hasOwnProperty('signal')) {
+  if ((Request && !Request.prototype.hasOwnProperty('signal')) || __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL) {
     Request = function Request(input, init) {
-      let request = new NativeRequest(input, init);
+      let signal;
       if (init && init.signal) {
-        request.signal = init.signal;
+        signal = init.signal;
+        // Never pass init.signal to the native Request implementation when the polyfill has
+        // been installed because if we're running on top of a browser with a
+        // working native AbortController (i.e. the polyfill was installed due to
+        // __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL being set), then passing our
+        // fake AbortSignal to the native fetch will trigger:
+        // TypeError: Failed to construct 'Request': member signal is not of type AbortSignal.
+        delete init.signal;
+      }
+      const request = new NativeRequest(input, init);
+      if (signal) {
+        Object.defineProperty(request, 'signal', {
+          writable: false,
+          enumerable: false,
+          configurable: true,
+          value: signal
+        });
       }
       return request;
     };
@@ -74,6 +91,15 @@ export default function abortableFetchDecorator(patchTargets) {
         signal.addEventListener('abort', () => reject(abortError), {once: true});
       });
 
+      if (init && init.signal) {
+        // Never pass .signal to the native implementation when the polyfill has
+        // been installed because if we're running on top of a browser with a
+        // working native AbortController (i.e. the polyfill was installed due to
+        // __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL being set), then passing our
+        // fake AbortSignal to the native fetch will trigger:
+        // TypeError: Failed to execute 'fetch' on 'Window': member signal is not of type AbortSignal.
+        delete init.signal;
+      }
       // Return the fastest promise (don't need to wait for request to finish)
       return Promise.race([cancellation, realFetch(input, init)]);
     }

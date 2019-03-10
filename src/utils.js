@@ -1,4 +1,9 @@
 export function polyfillNeeded(self) {
+  if (self.__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL) {
+    console.log('__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL=true is set, will force install polyfill');
+    return true;
+  }
+
   // Note that the "unfetch" minimal fetch polyfill defines fetch() without
   // defining window.Request, and this polyfill need to work on top of unfetch
   // so the below feature detection needs the !self.AbortController part.
