@@ -1,9 +1,25 @@
 const chalk = require('chalk');
 const path = require('path');
 const http = require('http');
+const url = require('url');
 const fs = require('fs');
 
 const TESTPAGE_URL_BASE = 'file://' + path.resolve(__dirname, 'testpage.html').replace('\\', '/');
+
+const createFetchTargetServer = () => {
+  const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    const queryParams = url.parse(req.url, true).query;
+    const sleepMillis = queryParams.sleepMillis;
+    setTimeout(() => {
+      res.writeHead(200);
+      res.end();
+    }, sleepMillis);
+  }).listen(0);
+  const boundListenPort = server.address().port;
+  return { server, port: boundListenPort, baseUrl: `http://127.0.0.1:${boundListenPort}` };
+};
+
 
 const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
   describe(testSuiteTitle, () => {
@@ -34,8 +50,9 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
     });
 
     it('abort during fetch', () => {
+      const { server, baseUrl } = createFetchTargetServer();
       browser.url(TESTPAGE_URL);
-      const err = browser.executeAsync(async (done) => {
+      const err = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({name: 'fail'});
         }, 2000);
@@ -45,17 +62,19 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
           controller.abort();
         }, 500);
         try {
-          await fetch('http://httpstat.us/200?sleep=1000', {signal});
+          await fetch(`${baseUrl}?sleepMillis=1000`, {signal});
         } catch (err) {
           done(err);
         }
-      });
+      }, baseUrl);
       expect(err.name).toBe('AbortError');
+      server.close();
     });
 
     it('abort during fetch when Request has signal', () => {
+      const { server, baseUrl } = createFetchTargetServer();
       browser.url(TESTPAGE_URL);
-      const err = browser.executeAsync(async (done) => {
+      const err = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({name: 'fail'});
         }, 2000);
@@ -65,18 +84,20 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
           controller.abort();
         }, 500);
         try {
-          let request = new Request('http://httpstat.us/200?sleep=1000', {signal});
+          let request = new Request(`${baseUrl}?sleepMillis=1000`, {signal});
           await fetch(request);
         } catch (err) {
           done(err);
         }
-      });
+      }, baseUrl);
       expect(err.name).toBe('AbortError');
+      server.close();
     });
 
     it('abort before fetch started', () => {
+      const { server, baseUrl } = createFetchTargetServer();
       browser.url(TESTPAGE_URL);
-      const err = browser.executeAsync(async (done) => {
+      const err = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({name: 'fail'});
         }, 2000);
@@ -84,12 +105,13 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
         controller.abort();
         const signal = controller.signal;
         try {
-          await fetch('http://httpstat.us/200?sleep=1000', {signal});
+          await fetch(`${baseUrl}?sleepMillis=1000`, {signal});
         } catch (err) {
           done(err);
         }
-      });
+      }, baseUrl);
       expect(err.name).toBe('AbortError');
+      server.close();
     });
 
     it('abort before fetch started, verify no HTTP request is made', () => {
@@ -117,37 +139,41 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
     });
 
     it('fetch without aborting', () => {
+      const { server, baseUrl } = createFetchTargetServer();
       browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (done) => {
+      const result = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({name: 'fail'});
         }, 2000);
         const controller = new AbortController();
         const signal = controller.signal;
         try {
-          await fetch('http://httpstat.us/200?sleep=50', {signal});
+          await fetch(`${baseUrl}?sleepMillis=50`, {signal});
           done('PASS');
         } catch (err) {
           done(err);
         }
-      });
+      }, baseUrl);
       expect(result).toBe('PASS');
+      server.close();
     });
 
     it('fetch without signal set', () => {
+      const { server, baseUrl } = createFetchTargetServer();
       browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (done) => {
+      const result = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({name: 'fail'});
         }, 2000);
         try {
-          await fetch('http://httpstat.us/200?sleep=50');
+          await fetch(`${baseUrl}?sleepMillis=50`);
           done('PASS');
         } catch (err) {
           done(err);
         }
-      });
+      }, baseUrl);
       expect(result).toBe('PASS');
+      server.close();
     });
 
     it('event listener fires "abort" event', () => {
