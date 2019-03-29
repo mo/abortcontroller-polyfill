@@ -38,6 +38,16 @@ class Emitter {
 export class AbortSignal extends Emitter {
   constructor() {
     super();
+    // Some versions of babel does not transpile super() correctly for IE <= 10, if the parent
+    // constructor has failed to run, then "this.listeners" will still be undefined and then we call
+    // the parent constructor directly instead as a workaround. For general details, see babel bug:
+    // https://github.com/babel/babel/issues/3041
+    // This hack was added as a fix for the issue described here:
+    // https://github.com/Financial-Times/polyfill-library/pull/59#issuecomment-477558042
+    if (!this.listeners) {
+      Emitter.call(this);
+    }
+
     // Compared to assignment, Object.defineProperty makes properties non-enumerable by default and
     // we want Object.keys(new AbortController().signal) to be [] for compat with the native impl
     Object.defineProperty(this, 'aborted', { value: false, writable: true, configurable: true });
