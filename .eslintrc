@@ -22,6 +22,7 @@
         "no-unused-vars": ["warn", { "vars": "all", "args": "none", "ignoreRestSiblings": true }],
         "no-console": "off",
         "no-debugger": "warn",
-        "comma-dangle": ["error", "only-multiline"]
+        "comma-dangle": ["error", "only-multiline"],
+        "no-prototype-builtins": "off"
     }
 }

@@ -328,8 +328,8 @@ function checkJSErrors() {
       hasPrintErrorOnceAlready = true;
     }
   } else {
-    browser.call(() => new Promise(async resolve => {
-      browserLog = await browser.getLogs('browser');
+    browser.call(() => browser.getLogs('browser').then(log => {
+      browserLog = log;
       browserLog.forEach(error => {
         if (error.level === 'SEVERE') {
           console.log(chalk.red(`[${error.level}] ${error.message}`));
@@ -337,7 +337,6 @@ function checkJSErrors() {
           console.log(`[${error.level}] ${error.message}`);
         }
       });
-      resolve();
     }));
   }
   return browserLog;

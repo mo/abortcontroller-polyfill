@@ -35,7 +35,7 @@
     "@wdio/spec-reporter": "^5.15.2",
     "@wdio/sync": "^5.15.1",
     "detect-browser": "^4.8.0",
-    "eslint": "^5.15.1",
+    "eslint": "^6.6.0",
     "npm-run-all": "^4.1.5",
     "rollup": "^1.26.0",
     "rollup-plugin-babel": "^4.3.3",
