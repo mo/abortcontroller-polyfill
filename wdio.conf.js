@@ -7,14 +7,14 @@ const seleniumVersions = {
     chrome: {
       // check for more recent versions of chrome driver here:
       // https://chromedriver.storage.googleapis.com/index.html
-      version: '2.43',
+      version: '76.0.3809.126',
       arch: process.arch,
       baseURL: 'https://chromedriver.storage.googleapis.com'
     },
     firefox: {
       // check for more recent versions of geckodriver here:
       // https://github.com/mozilla/geckodriver/releases/
-      version: '0.23.0',
+      version: '0.25.0',
       arch: process.arch,
       baseURL: 'https://github.com/mozilla/geckodriver/releases/download'
     },
