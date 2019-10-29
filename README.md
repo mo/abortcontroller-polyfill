@@ -89,7 +89,7 @@ You can either import it as a [ponyfill](https://ponyfill.com/) without modifyin
 const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/cjs-ponyfill');
 const { fetch } = abortableFetch(require('node-fetch'));
 // or
-// import AbortController, { abortableFetch } from 'abortcontroller-polyfill/dist/cjs-ponyfill';
+// import { AbortController, abortableFetch } from 'abortcontroller-polyfill/dist/cjs-ponyfill';
 // import _fetch from 'node-fetch';
 // const { fetch } = abortableFetch(_fetch);
 ```
