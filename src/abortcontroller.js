@@ -24,12 +24,13 @@ class Emitter {
     if (!(event.type in this.listeners)) {
       return;
     }
-    const debounce = callback => {
-      setTimeout(() => callback.call(this, event));
-    };
     const stack = this.listeners[event.type];
     for (let i = 0, l = stack.length; i < l; i++) {
-      debounce(stack[i]);
+      try {
+        stack[i].call(this, event);
+      } catch (e) {
+        Promise.resolve().then(() => { throw e; });
+      }
     }
     return !event.defaultPrevented;
   }
