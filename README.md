@@ -156,6 +156,7 @@ Here is a basic example of [abortable fetch running in IE 8](https://github.com/
 * [Leonardo Apiwan](https://github.com/homer0)
 * [Jake Champion](https://github.com/JakeChampion)
 * [Sai Srinivasan](https://github.com/SairamSrinivasan)
+* [Ambar Lee](https://github.com/ambar)
 
 # License
 
