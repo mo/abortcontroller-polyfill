@@ -71,6 +71,38 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
+    it('abort when multiple fetches are using the same signal', () => {
+      const { server, baseUrl } = createFetchTargetServer();
+      browser.url(TESTPAGE_URL);
+      const errors = browser.executeAsync(async (baseUrl, done) => {
+        setTimeout(() => {
+          done({name: 'fail'});
+        }, 2000);
+        const controller = new AbortController();
+        const signal = controller.signal;
+        setTimeout(() => {
+          controller.abort();
+        }, 500);
+        const requests = [
+          fetch(`${baseUrl}?sleepMillis=900`, {signal}),
+          fetch(`${baseUrl}?sleepMillis=1100`, {signal})
+        ];
+        const errors = [];
+        for (let req of requests) {
+          try {
+            await req;
+            errors.push({name: 'fail'});
+          } catch (err) {
+            errors.push(err);
+          }
+        }
+        done(errors);
+      }, baseUrl);
+      expect(errors[0].name).toBe('AbortError');
+      expect(errors[1].name).toBe('AbortError');
+      server.close();
+    });
+
     it('abort during fetch when Request has signal', () => {
       const { server, baseUrl } = createFetchTargetServer();
       browser.url(TESTPAGE_URL);
