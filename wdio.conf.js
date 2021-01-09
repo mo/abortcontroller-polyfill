@@ -1,13 +1,13 @@
 const seleniumVersions = {
   // check for more recent versions of selenium here:
   // https://selenium-release.storage.googleapis.com/index.html
-  version: '3.141.5',
+  version: '3.141.59',
   baseURL: 'https://selenium-release.storage.googleapis.com',
   drivers: {
     chrome: {
       // check for more recent versions of chrome driver here:
       // https://chromedriver.storage.googleapis.com/index.html
-      version: '83.0.4103.39',
+      version: '86.0.4240.22',
       arch: process.arch,
       baseURL: 'https://chromedriver.storage.googleapis.com'
     },
