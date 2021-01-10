@@ -2,11 +2,11 @@ class Emitter {
   constructor() {
     Object.defineProperty(this, 'listeners', { value: {}, writable: true, configurable: true });
   }
-  addEventListener(type, callback) {
+  addEventListener(type, callback, options) {
     if (!(type in this.listeners)) {
       this.listeners[type] = [];
     }
-    this.listeners[type].push(callback);
+    this.listeners[type].push({callback, options});
   }
   removeEventListener(type, callback) {
     if (!(type in this.listeners)) {
@@ -14,7 +14,7 @@ class Emitter {
     }
     const stack = this.listeners[type];
     for (let i = 0, l = stack.length; i < l; i++) {
-      if (stack[i] === callback) {
+      if (stack[i].callback === callback) {
         stack.splice(i, 1);
         return;
       }
@@ -25,11 +25,16 @@ class Emitter {
       return;
     }
     const stack = this.listeners[event.type];
-    for (let i = 0, l = stack.length; i < l; i++) {
+    const stackToCall = stack.slice();
+    for (let i = 0, l = stackToCall.length; i < l; i++) {
+      const listener = stackToCall[i];
       try {
-        stack[i].call(this, event);
+        listener.callback.call(this, event);
       } catch (e) {
         Promise.resolve().then(() => { throw e; });
+      }
+      if (listener.options && listener.options.once) {
+        this.removeEventListener(event.type, listener.callback);
       }
     }
     return !event.defaultPrevented;
