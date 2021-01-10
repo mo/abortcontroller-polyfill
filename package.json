@@ -1,6 +1,6 @@
 {
   "name": "abortcontroller-polyfill",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Polyfill/ponyfill for the AbortController DOM API + optional patching of fetch (stub that calls catch, doesn't actually abort request).",
   "main": "dist/umd-polyfill.js",
   "files": [
