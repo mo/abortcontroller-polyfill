@@ -1,8 +1,8 @@
-import AbortController, {AbortSignal} from './abortcontroller';
+import AbortController, { AbortSignal } from './abortcontroller';
 import abortableFetch from './abortableFetch';
-import {polyfillNeeded} from './utils';
+import { polyfillNeeded } from './utils';
 
-(function(self) {
+(function (self) {
   'use strict';
 
   if (!polyfillNeeded(self)) {
@@ -14,7 +14,7 @@ import {polyfillNeeded} from './utils';
     return;
   }
 
-  const {fetch, Request} = abortableFetch(self);
+  const { fetch, Request } = abortableFetch(self);
   self.fetch = fetch;
   self.Request = Request;
 
@@ -22,14 +22,13 @@ import {polyfillNeeded} from './utils';
     writable: true,
     enumerable: false,
     configurable: true,
-    value: AbortController
+    value: AbortController,
   });
 
   Object.defineProperty(self, 'AbortSignal', {
     writable: true,
     enumerable: false,
     configurable: true,
-    value: AbortSignal
+    value: AbortSignal,
   });
-
 })(typeof self !== 'undefined' ? self : global);

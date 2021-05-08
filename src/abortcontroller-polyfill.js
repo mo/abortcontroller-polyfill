@@ -1,7 +1,7 @@
-import AbortController, {AbortSignal} from './abortcontroller';
-import {polyfillNeeded} from './utils';
+import AbortController, { AbortSignal } from './abortcontroller';
+import { polyfillNeeded } from './utils';
 
-(function(self) {
+(function (self) {
   'use strict';
 
   if (!polyfillNeeded(self)) {
@@ -10,5 +10,4 @@ import {polyfillNeeded} from './utils';
 
   self.AbortController = AbortController;
   self.AbortSignal = AbortSignal;
-
 })(typeof self !== 'undefined' ? self : global);

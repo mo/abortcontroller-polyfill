@@ -6,7 +6,7 @@ class Emitter {
     if (!(type in this.listeners)) {
       this.listeners[type] = [];
     }
-    this.listeners[type].push({callback, options});
+    this.listeners[type].push({ callback, options });
   }
   removeEventListener(type, callback) {
     if (!(type in this.listeners)) {
@@ -31,7 +31,9 @@ class Emitter {
       try {
         listener.callback.call(this, event);
       } catch (e) {
-        Promise.resolve().then(() => { throw e; });
+        Promise.resolve().then(() => {
+          throw e;
+        });
       }
       if (listener.options && listener.options.once) {
         this.removeEventListener(event.type, listener.callback);
@@ -100,7 +102,7 @@ export class AbortController {
         event = {
           type: 'abort',
           bubbles: false,
-          cancelable: false
+          cancelable: false,
         };
       }
     }

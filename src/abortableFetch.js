@@ -1,4 +1,4 @@
-import {polyfillNeeded} from './utils.js';
+import { polyfillNeeded } from './utils.js';
 /**
  * Note: the "fetch.Request" default value is available for fetch imported from
  * the "node-fetch" package and not in browsers. This is OK since browsers
@@ -14,7 +14,7 @@ import {polyfillNeeded} from './utils.js';
  */
 export default function abortableFetchDecorator(patchTargets) {
   if ('function' === typeof patchTargets) {
-    patchTargets = {fetch: patchTargets};
+    patchTargets = { fetch: patchTargets };
   }
   const {
     fetch,
@@ -23,8 +23,15 @@ export default function abortableFetchDecorator(patchTargets) {
     __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL = false,
   } = patchTargets;
 
-  if (!polyfillNeeded({fetch, Request: NativeRequest, AbortController: NativeAbortController, __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL})) {
-    return {fetch, Request};
+  if (
+    !polyfillNeeded({
+      fetch,
+      Request: NativeRequest,
+      AbortController: NativeAbortController,
+      __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL,
+    })
+  ) {
+    return { fetch, Request };
   }
 
   let Request = NativeRequest;
@@ -58,7 +65,7 @@ export default function abortableFetchDecorator(patchTargets) {
           writable: false,
           enumerable: false,
           configurable: true,
-          value: signal
+          value: signal,
         });
       }
       return request;
@@ -68,7 +75,7 @@ export default function abortableFetchDecorator(patchTargets) {
 
   const realFetch = fetch;
   const abortableFetch = (input, init) => {
-    const signal = (Request && Request.prototype.isPrototypeOf(input)) ? input.signal : init ? init.signal : undefined;
+    const signal = Request && Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : undefined;
 
     if (signal) {
       let abortError;
@@ -88,7 +95,7 @@ export default function abortableFetchDecorator(patchTargets) {
 
       // Turn an event into a promise, reject it once `abort` is dispatched
       const cancellation = new Promise((_, reject) => {
-        signal.addEventListener('abort', () => reject(abortError), {once: true});
+        signal.addEventListener('abort', () => reject(abortError), { once: true });
       });
 
       if (init && init.signal) {
@@ -107,5 +114,5 @@ export default function abortableFetchDecorator(patchTargets) {
     return realFetch(input, init);
   };
 
-  return {fetch: abortableFetch, Request};
+  return { fetch: abortableFetch, Request };
 }

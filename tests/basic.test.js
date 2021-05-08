@@ -7,23 +7,23 @@ const fs = require('fs');
 const TESTPAGE_URL_BASE = 'file://' + path.resolve(__dirname, 'testpage.html').replace('\\', '/');
 
 const createFetchTargetServer = () => {
-  const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    const queryParams = url.parse(req.url, true).query;
-    const sleepMillis = queryParams.sleepMillis;
-    setTimeout(() => {
-      res.writeHead(200);
-      res.end();
-    }, sleepMillis);
-  }).listen(0);
+  const server = http
+    .createServer((req, res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      const queryParams = url.parse(req.url, true).query;
+      const sleepMillis = queryParams.sleepMillis;
+      setTimeout(() => {
+        res.writeHead(200);
+        res.end();
+      }, sleepMillis);
+    })
+    .listen(0);
   const boundListenPort = server.address().port;
   return { server, port: boundListenPort, baseUrl: `http://127.0.0.1:${boundListenPort}` };
 };
 
-
 const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
   describe(testSuiteTitle, () => {
-
     it('check version', () => {
       browser.url(TESTPAGE_URL);
       const browserData = browser.executeAsync(async (done) => {
@@ -37,7 +37,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       const result = browser.executeAsync(async (done) => {
         const controller = new AbortController();
         const signal = controller.signal;
-        const request = new Request('/', {signal});
+        const request = new Request('/', { signal });
         if (!request.signal) {
           done('FAIL: missing request.signal');
         }
@@ -54,7 +54,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       browser.url(TESTPAGE_URL);
       const err = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
-          done({name: 'fail'});
+          done({ name: 'fail' });
         }, 2000);
         const controller = new AbortController();
         const signal = controller.signal;
@@ -62,7 +62,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
           controller.abort();
         }, 500);
         try {
-          await fetch(`${baseUrl}?sleepMillis=1000`, {signal});
+          await fetch(`${baseUrl}?sleepMillis=1000`, { signal });
         } catch (err) {
           done(err);
         }
@@ -76,7 +76,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       browser.url(TESTPAGE_URL);
       const errors = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
-          done({name: 'fail'});
+          done({ name: 'fail' });
         }, 2000);
         const controller = new AbortController();
         const signal = controller.signal;
@@ -84,14 +84,14 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
           controller.abort();
         }, 500);
         const requests = [
-          fetch(`${baseUrl}?sleepMillis=900`, {signal}),
-          fetch(`${baseUrl}?sleepMillis=1100`, {signal})
+          fetch(`${baseUrl}?sleepMillis=900`, { signal }),
+          fetch(`${baseUrl}?sleepMillis=1100`, { signal }),
         ];
         const errors = [];
         for (let req of requests) {
           try {
             await req;
-            errors.push({name: 'fail'});
+            errors.push({ name: 'fail' });
           } catch (err) {
             errors.push(err);
           }
@@ -108,7 +108,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       browser.url(TESTPAGE_URL);
       const err = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
-          done({name: 'fail'});
+          done({ name: 'fail' });
         }, 2000);
         const controller = new AbortController();
         const signal = controller.signal;
@@ -116,7 +116,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
           controller.abort();
         }, 500);
         try {
-          let request = new Request(`${baseUrl}?sleepMillis=1000`, {signal});
+          let request = new Request(`${baseUrl}?sleepMillis=1000`, { signal });
           await fetch(request);
         } catch (err) {
           done(err);
@@ -131,13 +131,13 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       browser.url(TESTPAGE_URL);
       const err = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
-          done({name: 'fail'});
+          done({ name: 'fail' });
         }, 2000);
         const controller = new AbortController();
         controller.abort();
         const signal = controller.signal;
         try {
-          await fetch(`${baseUrl}?sleepMillis=1000`, {signal});
+          await fetch(`${baseUrl}?sleepMillis=1000`, { signal });
         } catch (err) {
           done(err);
         }
@@ -147,21 +147,23 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
     });
 
     it('abort before fetch started, verify no HTTP request is made', () => {
-      const server = http.createServer((req, res) => {
-        fail('fetch() made an HTTP request despite pre-aborted signal');
-      }).listen(0);
+      const server = http
+        .createServer((req, res) => {
+          fail('fetch() made an HTTP request despite pre-aborted signal');
+        })
+        .listen(0);
       const boundListenPort = server.address().port;
       browser.url(TESTPAGE_URL);
       const err = browser.executeAsync(async (boundListenPort, done) => {
         setTimeout(() => {
-          done({name: 'fail'});
+          done({ name: 'fail' });
         }, 2000);
         const controller = new AbortController();
         controller.abort();
         const signal = controller.signal;
         try {
-          await fetch(`http://127.0.0.1:${boundListenPort}`, {signal});
-          done({name: 'fail'});
+          await fetch(`http://127.0.0.1:${boundListenPort}`, { signal });
+          done({ name: 'fail' });
         } catch (err) {
           done(err);
         }
@@ -175,12 +177,12 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       browser.url(TESTPAGE_URL);
       const result = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
-          done({name: 'fail'});
+          done({ name: 'fail' });
         }, 2000);
         const controller = new AbortController();
         const signal = controller.signal;
         try {
-          await fetch(`${baseUrl}?sleepMillis=50`, {signal});
+          await fetch(`${baseUrl}?sleepMillis=50`, { signal });
           done('PASS');
         } catch (err) {
           done(err);
@@ -195,7 +197,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       browser.url(TESTPAGE_URL);
       const result = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
-          done({name: 'fail'});
+          done({ name: 'fail' });
         }, 2000);
         try {
           await fetch(`${baseUrl}?sleepMillis=50`);
@@ -212,7 +214,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       browser.url(TESTPAGE_URL);
       const result = browser.executeAsync(async (done) => {
         setTimeout(() => {
-          done({name: 'fail'});
+          done({ name: 'fail' });
         }, 2000);
         const controller = new AbortController();
         controller.signal.addEventListener('abort', () => {
@@ -280,19 +282,21 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
     it('fetch from web worker works', () => {
       // Need to load from webserver because worker because security policy
       // prevents file:// pages from "loading arbitrary .js files" as workers.
-      const server = http.createServer((req, res) => {
-        if (req.url === '/') {
-          // No need to load polyfill in main JS context, we're only gonna run it
-          // inside the worker only
-          res.end('');
-        } else if (req.url === '/umd-polyfill.js') {
-          res.setHeader('Content-Type', 'text/javascript');
-          res.end(fs.readFileSync(path.join(__dirname, '../dist/umd-polyfill.js')));
-        } else if (req.url === '/web-worker.js') {
-          res.setHeader('Content-Type', 'text/javascript');
-          res.end(fs.readFileSync(path.join(__dirname, 'web-worker.js')));
-        }
-      }).listen(0);
+      const server = http
+        .createServer((req, res) => {
+          if (req.url === '/') {
+            // No need to load polyfill in main JS context, we're only gonna run it
+            // inside the worker only
+            res.end('');
+          } else if (req.url === '/umd-polyfill.js') {
+            res.setHeader('Content-Type', 'text/javascript');
+            res.end(fs.readFileSync(path.join(__dirname, '../dist/umd-polyfill.js')));
+          } else if (req.url === '/web-worker.js') {
+            res.setHeader('Content-Type', 'text/javascript');
+            res.end(fs.readFileSync(path.join(__dirname, 'web-worker.js')));
+          }
+        })
+        .listen(0);
       const boundListenPort = server.address().port;
 
       browser.url(`http://127.0.0.1:${boundListenPort}`);
@@ -342,10 +346,7 @@ runBasicTests(
 // Run all testcases again with normal installation logic for abortcontroller-polyfill (on modern browsers
 // this will run the testcases against the native AbortController implementation, and on older browsers
 // this will verify that the polyfill chooses to install itself when it is needed)
-runBasicTests(
-  'basic tests again with normal installation logic for abortcontroller-polyfill',
-  TESTPAGE_URL_BASE
-);
+runBasicTests('basic tests again with normal installation logic for abortcontroller-polyfill', TESTPAGE_URL_BASE);
 
 afterEach(() => {
   checkJSErrors();
@@ -360,16 +361,18 @@ function checkJSErrors() {
       hasPrintErrorOnceAlready = true;
     }
   } else {
-    browser.call(() => browser.getLogs('browser').then(log => {
-      browserLog = log;
-      browserLog.forEach(error => {
-        if (error.level === 'SEVERE') {
-          console.log(chalk.red(`[${error.level}] ${error.message}`));
-        } else {
-          console.log(`[${error.level}] ${error.message}`);
-        }
-      });
-    }));
+    browser.call(() =>
+      browser.getLogs('browser').then((log) => {
+        browserLog = log;
+        browserLog.forEach((error) => {
+          if (error.level === 'SEVERE') {
+            console.log(chalk.red(`[${error.level}] ${error.message}`));
+          } else {
+            console.log(`[${error.level}] ${error.message}`);
+          }
+        });
+      })
+    );
   }
   return browserLog;
 }
