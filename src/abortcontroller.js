@@ -60,6 +60,7 @@ export class AbortSignal extends Emitter {
     // we want Object.keys(new AbortController().signal) to be [] for compat with the native impl
     Object.defineProperty(this, 'aborted', { value: false, writable: true, configurable: true });
     Object.defineProperty(this, 'onabort', { value: null, writable: true, configurable: true });
+    Object.defineProperty(this, 'reason', { value: undefined, writable: true, configurable: true });
   }
   toString() {
     return '[object AbortSignal]';
@@ -82,7 +83,7 @@ export class AbortController {
     // we want Object.keys(new AbortController()) to be [] for compat with the native impl
     Object.defineProperty(this, 'signal', { value: new AbortSignal(), writable: true, configurable: true });
   }
-  abort() {
+  abort(reason) {
     let event;
     try {
       event = new Event('abort');
@@ -106,6 +107,18 @@ export class AbortController {
         };
       }
     }
+
+    let signalReason = reason;
+    if (signalReason === undefined) {
+      if (typeof document === 'undefined') {
+        signalReason = new Error('This operation was aborted');
+        signalReason.name = 'AbortError';
+      } else {
+        signalReason = new DOMException('signal is aborted without reason');
+      }
+    }
+    this.signal.reason = signalReason;
+    
     this.signal.dispatchEvent(event);
   }
   toString() {

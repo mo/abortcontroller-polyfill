@@ -52,7 +52,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
     it('abort during fetch', () => {
       const { server, baseUrl } = createFetchTargetServer();
       browser.url(TESTPAGE_URL);
-      const err = browser.executeAsync(async (baseUrl, done) => {
+      const { errorName, signalReason } = browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -63,11 +63,12 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
         }, 500);
         try {
           await fetch(`${baseUrl}?sleepMillis=1000`, { signal });
-        } catch (err) {
-          done(err);
+        } catch (error) {
+          done({ errorName: error.name, signalReason: signal.reason });
         }
       }, baseUrl);
-      expect(err.name).toBe('AbortError');
+      expect(errorName).toBe('AbortError');
+      expect(signalReason.message).toBe('signal is aborted without reason');
       server.close();
     });
 
@@ -333,6 +334,17 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
         done(new AbortController().signal.toString());
       });
       expect(result).toBe('[object AbortSignal]');
+    });
+
+    it('abort(reason)', () => {
+      browser.url(TESTPAGE_URL);
+      const signalReason = browser.executeAsync(async (done) => {
+        const controller = new AbortController();
+        controller.abort('My reason');
+
+        done(controller.signal.reason);
+      });
+      expect(signalReason).toEqual('My reason');
     });
   });
 };
