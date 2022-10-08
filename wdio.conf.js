@@ -28,7 +28,7 @@ exports.config = {
   maxInstances: 5,
   // NOTE: capabilities are set at the bottom of the file instead!
   //capabilities: [],
-  sync: true,
+  sync: false,
   // Level of logging verbosity: silent | verbose | command | data | result | error
   logLevel: process.env.E2E_LOG_LEVEL || 'error',
   bail: 0,

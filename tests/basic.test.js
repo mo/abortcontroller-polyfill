@@ -24,17 +24,18 @@ const createFetchTargetServer = () => {
 
 const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
   describe(testSuiteTitle, () => {
-    it('check version', () => {
-      browser.url(TESTPAGE_URL);
-      const browserData = browser.executeAsync(async (done) => {
+    it('check version', async () => {
+      await browser.url(TESTPAGE_URL);
+      const browserData = await browser.executeAsync(async (done) => {
         done(window.DetectedBrowserData);
       });
+      expect(typeof browserData.name === 'string').toBe(true);
       console.log('Tests running on: ' + JSON.stringify(browserData, null, 2));
     });
 
-    it('Request object has .signal', () => {
-      browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (done) => {
+    it('Request object has .signal', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
         const controller = new AbortController();
         const signal = controller.signal;
         const request = new Request('/', { signal });
@@ -49,10 +50,10 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       expect(result).toBe('PASS');
     });
 
-    it('abort during fetch', () => {
+    it('abort during fetch', async () => {
       const { server, baseUrl } = createFetchTargetServer();
-      browser.url(TESTPAGE_URL);
-      const err = browser.executeAsync(async (baseUrl, done) => {
+      await browser.url(TESTPAGE_URL);
+      const err = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -71,10 +72,10 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
-    it('abort when multiple fetches are using the same signal', () => {
+    it('abort when multiple fetches are using the same signal', async () => {
       const { server, baseUrl } = createFetchTargetServer();
-      browser.url(TESTPAGE_URL);
-      const errors = browser.executeAsync(async (baseUrl, done) => {
+      await browser.url(TESTPAGE_URL);
+      const errors = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -103,10 +104,10 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
-    it('abort during fetch when Request has signal', () => {
+    it('abort during fetch when Request has signal', async () => {
       const { server, baseUrl } = createFetchTargetServer();
-      browser.url(TESTPAGE_URL);
-      const err = browser.executeAsync(async (baseUrl, done) => {
+      await browser.url(TESTPAGE_URL);
+      const err = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -126,10 +127,10 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
-    it('abort before fetch started', () => {
+    it('abort before fetch started', async () => {
       const { server, baseUrl } = createFetchTargetServer();
-      browser.url(TESTPAGE_URL);
-      const err = browser.executeAsync(async (baseUrl, done) => {
+      await browser.url(TESTPAGE_URL);
+      const err = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -146,15 +147,15 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
-    it('abort before fetch started, verify no HTTP request is made', () => {
+    it('abort before fetch started, verify no HTTP request is made', async () => {
       const server = http
         .createServer((req, res) => {
           fail('fetch() made an HTTP request despite pre-aborted signal');
         })
         .listen(0);
       const boundListenPort = server.address().port;
-      browser.url(TESTPAGE_URL);
-      const err = browser.executeAsync(async (boundListenPort, done) => {
+      await browser.url(TESTPAGE_URL);
+      const err = await browser.executeAsync(async (boundListenPort, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -172,10 +173,10 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
-    it('fetch without aborting', () => {
+    it('fetch without aborting', async () => {
       const { server, baseUrl } = createFetchTargetServer();
-      browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (baseUrl, done) => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -192,10 +193,10 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
-    it('fetch without signal set', () => {
+    it('fetch without signal set', async () => {
       const { server, baseUrl } = createFetchTargetServer();
-      browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (baseUrl, done) => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -210,9 +211,9 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
-    it('event listener fires "abort" event', () => {
-      browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (done) => {
+    it('event listener fires "abort" event', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -225,9 +226,9 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       expect(result).toBe('PASS');
     });
 
-    it('signal.aborted is true after abort', () => {
-      browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (done) => {
+    it('signal.aborted is true after abort', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
         setTimeout(() => {
           done('FAIL');
         }, 2000);
@@ -247,9 +248,9 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       expect(result).toBe('PASS');
     });
 
-    it('event listener doesn\'t fire "abort" event after removeEventListener', () => {
-      browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (done) => {
+    it('event listener doesn\'t fire "abort" event after removeEventListener', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
         setTimeout(() => {
           done('PASS');
         }, 200);
@@ -264,9 +265,9 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       expect(result).toBe('PASS');
     });
 
-    it('signal.onabort called on abort', () => {
-      browser.url(TESTPAGE_URL);
-      const result = browser.executeAsync(async (done) => {
+    it('signal.onabort called on abort', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
         setTimeout(() => {
           done('FAIL');
         }, 200);
@@ -279,7 +280,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       expect(result).toBe('PASS');
     });
 
-    it('fetch from web worker works', () => {
+    it('fetch from web worker works', async () => {
       // Need to load from webserver because worker because security policy
       // prevents file:// pages from "loading arbitrary .js files" as workers.
       const server = http
@@ -299,8 +300,8 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
         .listen(0);
       const boundListenPort = server.address().port;
 
-      browser.url(`http://127.0.0.1:${boundListenPort}`);
-      const result = browser.executeAsync(async (done) => {
+      await browser.url(`http://127.0.0.1:${boundListenPort}`);
+      const result = await browser.executeAsync(async (done) => {
         setTimeout(() => {
           done('FAIL');
         }, 2000);
@@ -314,22 +315,22 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       server.close();
     });
 
-    it('toString() output', () => {
-      browser.url(TESTPAGE_URL);
+    it('toString() output', async () => {
+      await browser.url(TESTPAGE_URL);
 
       let result;
 
-      result = browser.executeAsync((done) => {
+      result = await browser.executeAsync((done) => {
         done(new AbortController().toString());
       });
       expect(result).toBe('[object AbortController]');
 
-      result = browser.executeAsync((done) => {
+      result = await browser.executeAsync((done) => {
         done(Object.prototype.toString.call(new AbortController()));
       });
       expect(result).toBe('[object AbortController]');
 
-      result = browser.executeAsync((done) => {
+      result = await browser.executeAsync((done) => {
         done(new AbortController().signal.toString());
       });
       expect(result).toBe('[object AbortSignal]');
