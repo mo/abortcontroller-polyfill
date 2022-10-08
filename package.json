@@ -16,7 +16,7 @@
     "test-firefox": "SELENIUM_BROWSER=firefox ./scripts/wdio-suppress-exitcode",
     "test-inspect-brk": "E2E_WDIO_EXEC_ARGV=--inspect-brk npm run test-chrome",
     "test-verbose": "SELENIUM_BROWSER=chrome E2E_LOG_LEVEL=verbose wdio wdio.conf.js",
-    "updtr": "npx updtr",
+    "upgrade-packages": "npx npm-check --update",
     "eslint": "eslint src/ tests/"
   },
   "keywords": [],
