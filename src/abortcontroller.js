@@ -114,11 +114,18 @@ export class AbortController {
         signalReason = new Error('This operation was aborted');
         signalReason.name = 'AbortError';
       } else {
-        signalReason = new DOMException('signal is aborted without reason');
+        try {
+          signalReason = new DOMException('signal is aborted without reason');
+        } catch (err) {
+          // IE 11 does not support calling the DOMException constructor, use a
+          // regular error object on it instead.
+          signalReason = new Error('This operation was aborted');
+          signalReason.name = 'AbortError';
+        }
       }
     }
     this.signal.reason = signalReason;
-    
+
     this.signal.dispatchEvent(event);
   }
   toString() {
