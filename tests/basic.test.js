@@ -347,6 +347,25 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       });
       expect(signalReason).toEqual('My reason');
     });
+
+    it('AbortSignal.timeout(duration)', async () => {
+      const { server, baseUrl } = createFetchTargetServer();
+      await browser.url(TESTPAGE_URL);
+      const err = await browser.executeAsync(async (baseUrl, done) => {
+        setTimeout(() => {
+          done({ name: 'fail' });
+        }, 2000);
+        const signal = AbortSignal.timeout(500);
+        try {
+          let request = new Request(`${baseUrl}?sleepMillis=1000`, { signal });
+          await fetch(request);
+        } catch (err) {
+          done(err);
+        }
+      }, baseUrl);
+      expect(err.name).toBe('AbortError');
+      server.close();
+    });
   });
 };
 

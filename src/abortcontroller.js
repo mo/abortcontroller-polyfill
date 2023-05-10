@@ -75,6 +75,11 @@ export class AbortSignal extends Emitter {
 
     super.dispatchEvent(event);
   }
+  static timeout(duration) {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), duration);
+    return controller.signal;
+  }
 }
 
 export class AbortController {
