@@ -347,6 +347,62 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       });
       expect(signalReason).toEqual('My reason');
     });
+
+    it('throws if the signal is aborted', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
+        const controller = new AbortController();
+        controller.abort(new Error('My reason'));
+        try {
+          controller.signal.throwIfAborted();
+          done('FAIL');
+        } catch (error) {
+          done([error.name, error.message] + '');
+        }
+      });
+      expect(result).toBe('AbortError,My reason');
+    });
+
+    it('makes a new signal with a timeout', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
+        const signal = new AbortSignal.timeout(100);
+        setTimeout(() => {
+          if (signal.aborted) done('PASS');
+          else done('FAIL');
+        }, 100);
+      });
+      expect(result).toBe('PASS');
+    });
+
+    it('aborted the new signal immediately if one of source signals is aborted already', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
+        const controller1 = new AbortController(),
+          controller2 = new AbortController();
+        controller1.abort();
+
+        const signal = AbortSignal.any([controller1.signal, controller2.signal]);
+        if (signal.aborted) done('PASS');
+        else done('FAIL');
+      });
+      expect(result).toBe('PASS');
+    });
+
+    it('aborted the new signal asynchronously if one of source signals is aborted later', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
+        const controller1 = new AbortController(),
+          controller2 = new AbortController();
+        const signal = AbortSignal.any([controller1.signal, controller2.signal]);
+        setTimeout(() => controller2.abort('Controller 2 is aborted'), 100);
+        setTimeout(() => {
+          if (signal.aborted) done(signal.reason);
+          else done('FAIL');
+        }, 100);
+      });
+      expect(result).toBe('Controller 2 is aborted');
+    });
   });
 };
 
