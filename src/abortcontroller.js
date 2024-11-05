@@ -75,6 +75,63 @@ export class AbortSignal extends Emitter {
 
     super.dispatchEvent(event);
   }
+
+  /**
+   * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/AbortSignal/throwIfAborted}
+   */
+  throwIfAborted() {
+    const { aborted, reason = 'Aborted' } = this;
+
+    if (!aborted) return;
+
+    throw reason instanceof DOMException
+      ? reason
+      : new DOMException(reason instanceof Error ? reason.message : reason + '', 'AbortError');
+  }
+
+  /**
+   * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/AbortSignal/timeout_static}
+   * @param {number} time The "active" time in milliseconds before the returned {@link AbortSignal} will abort.
+   *                      The value must be within range of 0 and {@link Number.MAX_SAFE_INTEGER}.
+   * @returns {AbortSignal} The signal will abort with its {@link AbortSignal.reason} property set to a `TimeoutError` {@link DOMException} on timeout,
+   *                        or an `AbortError` {@link DOMException} if the operation was user-triggered.
+   */
+  static timeout(time) {
+    const controller = new AbortController();
+
+    setTimeout(() => controller.abort(new DOMException(`This signal is timeout in ${time}ms`, 'TimeoutError')), time);
+
+    return controller.signal;
+  }
+
+  /**
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/any_static}
+   * @param {Iterable<AbortSignal>} iterable An {@link Iterable} (such as an {@link Array}) of abort signals.
+   * @returns {AbortSignal} - **Already aborted**, if any of the abort signals given is already aborted. 
+   *                          The returned {@link AbortSignal}'s reason will be already set to the `reason` of the first abort signal that was already aborted.
+   *                        - **Asynchronously aborted**, when any abort signal in `iterable` aborts.
+   *                          The `reason` will be set to the reason of the first abort signal that is aborted.
+   */
+  static any(iterable) {
+    const controller = new AbortController();
+    /**
+     * @this AbortSignal
+     */
+    function abort() {
+      controller.abort(this.reason);
+      clean();
+    }
+    function clean() {
+      for (const signal of iterable) signal.removeEventListener('abort', abort);
+    }
+    for (const signal of iterable)
+      if (signal.aborted) {
+        controller.abort(signal.reason);
+        break;
+      } else signal.addEventListener('abort', abort);
+
+    return controller.signal;
+  }
 }
 
 export class AbortController {
