@@ -84,9 +84,7 @@ export class AbortSignal extends Emitter {
 
     if (!aborted) return;
 
-    throw reason instanceof DOMException
-      ? reason
-      : new DOMException(reason instanceof Error ? reason.message : reason + '', 'AbortError');
+    throw reason;
   }
 
   /**
@@ -107,7 +105,7 @@ export class AbortSignal extends Emitter {
   /**
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/any_static}
    * @param {Iterable<AbortSignal>} iterable An {@link Iterable} (such as an {@link Array}) of abort signals.
-   * @returns {AbortSignal} - **Already aborted**, if any of the abort signals given is already aborted. 
+   * @returns {AbortSignal} - **Already aborted**, if any of the abort signals given is already aborted.
    *                          The returned {@link AbortSignal}'s reason will be already set to the `reason` of the first abort signal that was already aborted.
    *                        - **Asynchronously aborted**, when any abort signal in `iterable` aborts.
    *                          The `reason` will be set to the reason of the first abort signal that is aborted.
@@ -173,6 +171,7 @@ export class AbortController {
       } else {
         try {
           signalReason = new DOMException('signal is aborted without reason');
+          signalReason.name = 'AbortError';
         } catch (err) {
           // IE 11 does not support calling the DOMException constructor, use a
           // regular error object on it instead.
