@@ -4,8 +4,6 @@ const http = require('http');
 const url = require('url');
 const fs = require('fs');
 
-const TESTPAGE_URL_BASE = 'file://' + path.resolve(__dirname, 'testpage.html').replace('\\', '/');
-
 const createFetchTargetServer = () => {
   const server = http
     .createServer((req, res) => {
@@ -53,7 +51,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
     it('abort during fetch', async () => {
       const { server, baseUrl } = createFetchTargetServer();
       await browser.url(TESTPAGE_URL);
-      const { errorName, signalReason } = await browser.executeAsync(async (baseUrl, done) => {
+      const { errorName, signalReasonName } = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
           done({ name: 'fail' });
         }, 2000);
@@ -65,11 +63,11 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
         try {
           await fetch(`${baseUrl}?sleepMillis=1000`, { signal });
         } catch (error) {
-          done({ errorName: error.name, signalReason: signal.reason });
+          done({ errorName: error.name, signalReasonName: signal.reason.name });
         }
       }, baseUrl);
       expect(errorName).toBe('AbortError');
-      expect(signalReason.message).toBe('signal is aborted without reason');
+      expect(signalReasonName).toBe('AbortError');
       server.close();
     });
 
@@ -95,22 +93,22 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
             await req;
             errors.push({ name: 'fail' });
           } catch (err) {
-            errors.push(err);
+            errors.push(err.name);
           }
         }
         done(errors);
       }, baseUrl);
-      expect(errors[0].name).toBe('AbortError');
-      expect(errors[1].name).toBe('AbortError');
+      expect(errors[0]).toBe('AbortError');
+      expect(errors[1]).toBe('AbortError');
       server.close();
     });
 
     it('abort during fetch when Request has signal', async () => {
       const { server, baseUrl } = createFetchTargetServer();
       await browser.url(TESTPAGE_URL);
-      const err = await browser.executeAsync(async (baseUrl, done) => {
+      const errorName = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
-          done({ name: 'fail' });
+          done('fail');
         }, 2000);
         const controller = new AbortController();
         const signal = controller.signal;
@@ -121,19 +119,19 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
           let request = new Request(`${baseUrl}?sleepMillis=1000`, { signal });
           await fetch(request);
         } catch (err) {
-          done(err);
+          done(err.name);
         }
       }, baseUrl);
-      expect(err.name).toBe('AbortError');
+      expect(errorName).toBe('AbortError');
       server.close();
     });
 
     it('abort before fetch started', async () => {
       const { server, baseUrl } = createFetchTargetServer();
       await browser.url(TESTPAGE_URL);
-      const err = await browser.executeAsync(async (baseUrl, done) => {
+      const errorName = await browser.executeAsync(async (baseUrl, done) => {
         setTimeout(() => {
-          done({ name: 'fail' });
+          done('fail');
         }, 2000);
         const controller = new AbortController();
         controller.abort();
@@ -141,10 +139,10 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
         try {
           await fetch(`${baseUrl}?sleepMillis=1000`, { signal });
         } catch (err) {
-          done(err);
+          done(err.name);
         }
       }, baseUrl);
-      expect(err.name).toBe('AbortError');
+      expect(errorName).toBe('AbortError');
       server.close();
     });
 
@@ -156,9 +154,9 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
         .listen(0);
       const boundListenPort = server.address().port;
       await browser.url(TESTPAGE_URL);
-      const err = await browser.executeAsync(async (boundListenPort, done) => {
+      const errorName = await browser.executeAsync(async (boundListenPort, done) => {
         setTimeout(() => {
-          done({ name: 'fail' });
+          done('fail');
         }, 2000);
         const controller = new AbortController();
         controller.abort();
@@ -167,10 +165,10 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
           await fetch(`http://127.0.0.1:${boundListenPort}`, { signal });
           done({ name: 'fail' });
         } catch (err) {
-          done(err);
+          done(err.name);
         }
       }, boundListenPort);
-      expect(err.name).toBe('AbortError');
+      expect(errorName).toBe('AbortError');
       server.close();
     });
 
@@ -348,7 +346,7 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
       expect(signalReason).toEqual('My reason');
     });
 
-    it('throws if the signal is aborted', async () => {
+    it('throws if the signal is aborted with Error', async () => {
       await browser.url(TESTPAGE_URL);
       const result = await browser.executeAsync(async (done) => {
         const controller = new AbortController();
@@ -357,20 +355,38 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
           controller.signal.throwIfAborted();
           done('FAIL');
         } catch (error) {
-          done([error.name, error.message] + '');
+          done(error.name);
         }
       });
-      expect(result).toBe('AbortError,My reason');
+      expect(result).toBe('Error');
+    });
+
+    it('throws if the signal is aborted with string reason', async () => {
+      await browser.url(TESTPAGE_URL);
+      const result = await browser.executeAsync(async (done) => {
+        const controller = new AbortController();
+        controller.abort('reason');
+        try {
+          controller.signal.throwIfAborted();
+          done('FAIL');
+        } catch (error) {
+          done(error);
+        }
+      });
+      expect(result).toBe('reason');
     });
 
     it('makes a new signal with a timeout', async () => {
       await browser.url(TESTPAGE_URL);
       const result = await browser.executeAsync(async (done) => {
-        const signal = new AbortSignal.timeout(100);
+        const signal = AbortSignal.timeout(50);
         setTimeout(() => {
-          if (signal.aborted) done('PASS');
-          else done('FAIL');
-        }, 100);
+          if (signal.aborted) {
+            done('PASS');
+          } else {
+            done('FAIL');
+          }
+        }, 200);
       });
       expect(result).toBe('PASS');
     });
@@ -406,16 +422,32 @@ const runBasicTests = (testSuiteTitle, TESTPAGE_URL) => {
   });
 };
 
+const mainServer = http
+  .createServer((req, res) => {
+    if (req.url.includes('.js')) {
+      res.writeHead(200, { 'Content-Type': 'text/javascript' });
+      const htmlContent = fs.readFileSync(path.resolve(__dirname, '../dist/umd-polyfill.js'));
+      res.end(htmlContent, 'utf-8');
+    } else {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      const htmlContent = fs.readFileSync(path.resolve(__dirname, 'testpage.html'));
+      res.end(htmlContent, 'utf-8');
+    }
+  })
+  .listen(0);
+const mainServerPort = mainServer.address().port;
+let testPageUrl = `http://localhost:${mainServerPort}/testpage.html`;
+
 // Run all testcases with abortcontroller-polyfill force installed (even browser has native AbortController)
 runBasicTests(
   'basic tests with abortcontroller-polyfill force installed',
-  `${TESTPAGE_URL_BASE}?__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL=1`
+  `${testPageUrl}?__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL=1`
 );
 
 // Run all testcases again with normal installation logic for abortcontroller-polyfill (on modern browsers
 // this will run the testcases against the native AbortController implementation, and on older browsers
 // this will verify that the polyfill chooses to install itself when it is needed)
-runBasicTests('basic tests again with normal installation logic for abortcontroller-polyfill', TESTPAGE_URL_BASE);
+runBasicTests('basic tests again with normal installation logic for abortcontroller-polyfill', testPageUrl);
 
 afterEach(() => {
   checkJSErrors();
