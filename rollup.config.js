@@ -31,6 +31,14 @@ export default [{
   plugins
 },
 {
+  input: 'src/abortsignal-polyfill.js',
+  output: {
+    file: 'dist/abortsignal-polyfill-only.js',
+    format: 'umd'
+  },
+  plugins
+},
+{
   input: 'src/ponyfill.js',
   output: {
     file: 'dist/cjs-ponyfill.js',
@@ -42,6 +50,15 @@ export default [{
   input: 'src/abortcontroller.js',
   output: {
     file: 'dist/abortcontroller.js',
+    format: 'cjs',
+    exports: 'named'
+  },
+  plugins
+},
+{
+  input: 'src/abortsignal-ponyfill.js',
+  output: {
+    file: 'dist/abortsignal-ponyfill.js',
     format: 'cjs',
     exports: 'named'
   },

@@ -15,3 +15,11 @@ export function polyfillNeeded(self) {
     (typeof self.Request === 'function' && !self.Request.prototype.hasOwnProperty('signal')) || !self.AbortController
   );
 }
+
+export function signalPolyfillNeeded(self) {
+  return (
+    !!self.AbortController &&
+    typeof self.AbortSignal === 'function' &&
+    !self.AbortSignal.prototype.hasOwnProperty('reason')
+  );
+}

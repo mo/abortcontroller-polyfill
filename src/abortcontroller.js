@@ -1,3 +1,5 @@
+import { createAbortEvent, normalizeAbortReason } from "./abortsignal-ponyfill";
+
 class Emitter {
   constructor() {
     Object.defineProperty(this, 'listeners', { value: {}, writable: true, configurable: true });
@@ -139,48 +141,8 @@ export class AbortController {
     Object.defineProperty(this, 'signal', { value: new AbortSignal(), writable: true, configurable: true });
   }
   abort(reason) {
-    let event;
-    try {
-      event = new Event('abort');
-    } catch (e) {
-      if (typeof document !== 'undefined') {
-        if (!document.createEvent) {
-          // For Internet Explorer 8:
-          event = document.createEventObject();
-          event.type = 'abort';
-        } else {
-          // For Internet Explorer 11:
-          event = document.createEvent('Event');
-          event.initEvent('abort', false, false);
-        }
-      } else {
-        // Fallback where document isn't available:
-        event = {
-          type: 'abort',
-          bubbles: false,
-          cancelable: false,
-        };
-      }
-    }
-
-    let signalReason = reason;
-    if (signalReason === undefined) {
-      if (typeof document === 'undefined') {
-        signalReason = new Error('This operation was aborted');
-        signalReason.name = 'AbortError';
-      } else {
-        try {
-          signalReason = new DOMException('signal is aborted without reason');
-          signalReason.name = 'AbortError';
-        } catch (err) {
-          // IE 11 does not support calling the DOMException constructor, use a
-          // regular error object on it instead.
-          signalReason = new Error('This operation was aborted');
-          signalReason.name = 'AbortError';
-        }
-      }
-    }
-    this.signal.reason = signalReason;
+    const signalReason = normalizeAbortReason(reason)
+    const event = createAbortEvent(signalReason)
 
     this.signal.dispatchEvent(event);
   }

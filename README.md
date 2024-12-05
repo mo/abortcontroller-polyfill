@@ -146,6 +146,14 @@ IE 11 you also need to polyfill promises. One caveat is that CORS requests will 
 
 Here is a basic example of [abortable fetch running in IE 8](https://github.com/mo/abortcontroller-polyfill-examples/tree/master/plain-javascript-fetch-ie8).
 
+# Using it on Legacy Webview
+
+The ```abortcontroller-polyfill``` works on Legacy Webview. However, to use it you must first confirm that the native AbortController and AbortSignal already exist in the environment. Otherwise, it is recommended to use the other solutions mentioned above.
+
+```js
+import 'abortcontroller-polyfill/dist/abortsignal-polyfill-only';
+```
+
 # Contributors
 * [Martin Olsson](https://github.com/mo)
 * [Jimmy Wärting](https://github.com/jimmywarting)
