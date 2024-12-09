@@ -144,6 +144,7 @@ export class AbortController {
     const signalReason = normalizeAbortReason(reason);
     const event = createAbortEvent(signalReason);
 
+    this.signal.reason = signalReason;
     this.signal.dispatchEvent(event);
   }
   toString() {
