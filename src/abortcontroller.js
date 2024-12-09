@@ -1,4 +1,4 @@
-import { createAbortEvent, normalizeAbortReason } from "./abortsignal-ponyfill";
+import { createAbortEvent, normalizeAbortReason } from './abortsignal-ponyfill';
 
 class Emitter {
   constructor() {
@@ -141,8 +141,8 @@ export class AbortController {
     Object.defineProperty(this, 'signal', { value: new AbortSignal(), writable: true, configurable: true });
   }
   abort(reason) {
-    const signalReason = normalizeAbortReason(reason)
-    const event = createAbortEvent(signalReason)
+    const signalReason = normalizeAbortReason(reason);
+    const event = createAbortEvent(signalReason);
 
     this.signal.dispatchEvent(event);
   }

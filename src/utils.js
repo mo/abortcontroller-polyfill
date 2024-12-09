@@ -17,6 +17,11 @@ export function polyfillNeeded(self) {
 }
 
 export function signalPolyfillNeeded(self) {
+  if (self.__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL) {
+    console.log('__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL=true is set, will force install polyfill');
+    return true;
+  }
+
   return (
     !!self.AbortController &&
     typeof self.AbortSignal === 'function' &&
