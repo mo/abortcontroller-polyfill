@@ -167,6 +167,7 @@ import 'abortcontroller-polyfill/dist/abortsignal-polyfill-only';
 * [Ambar Lee](https://github.com/ambar)
 * [Sebastian Silbermann](https://github.com/eps1lon)
 * [Yao Shi](https://github.com/TechQuery)
+* [Ray Hao](https://github.com/l246804)
 
 # License
 
